@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="106.40296mm"
+   height="63.493889mm"
+   viewBox="0 0 106.40296 63.493889"
+   version="1.1"
+   id="svg821"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="Logo.svg">
+  <defs
+     id="defs815" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.97035431"
+     inkscape:cx="202.6783"
+     inkscape:cy="80.429314"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     showguides="false"
+     inkscape:window-width="1366"
+     inkscape:window-height="709"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata818">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-59.599653,-92.360937)">
+    <path
+       style="fill:#af98ff;fill-opacity:1;stroke:#ffff00;stroke-width:0.03779528;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;opacity:1"
+       d="M 225.63477 0.01953125 C 128.15651 0.01953125 49.134766 49.939766 49.134766 111.51953 C 49.144766 129.23168 49.134743 111.51753 54.220703 165.53125 C -5.2556843 207.81826 0.074680003 239.18193 0.1875 239.80664 C 2.21187 236.63964 51.116043 174.8876 178.59961 218.86523 C 193.91014 221.58233 209.73173 222.97973 225.63477 223.01953 C 323.11299 223.01953 402.13477 173.09926 402.13477 111.51953 C 402.13477 49.939766 323.11299 0.01953125 225.63477 0.01953125 z M 0.1875 239.80664 C 0.085760003 239.96581 0.063862506 240.02313 0.1953125 239.86523 C 0.1953125 239.86523 0.1885 239.81294 0.1875 239.80664 z M 225.87305 14.134766 C 289.22799 12.83013 235.62555 111.66005 239.08789 162.02148 L 206.10938 162.02148 C 208.07786 121.41447 260.7447 19.920094 206.10938 47.630859 L 207.14062 16.714844 C 214.29555 15.075526 220.50398 14.245328 225.87305 14.134766 z M 206.10938 174.02148 L 239.08789 174.02148 L 239.08789 207 L 206.10938 207 L 206.10938 174.02148 z "
+       transform="matrix(0.26458333,0,0,0.26458333,59.599653,92.360937)"
+       id="path1368" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot1373"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"><flowRegion
+         id="flowRegion1375"><rect
+           id="rect1377"
+           width="219"
+           height="108"
+           x="-690"
+           y="283.51968" /></flowRegion><flowPara
+         id="flowPara1379" /></flowRoot>  </g>
+</svg>

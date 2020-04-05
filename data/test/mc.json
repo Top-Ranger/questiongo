@@ -1,0 +1,9 @@
+{
+    "Random": true,
+    "Format": "markdown",
+    "Question": "This is **Multiple Choice**",
+    "Answers": [
+        ["mc1", "Answer1"],
+        ["mc2", "Answer2"]
+    ]
+}

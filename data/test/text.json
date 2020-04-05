@@ -1,0 +1,6 @@
+{
+    "Format": "plain",
+    "Required": true,
+    "Question": "This is <strong>text question</strong> (plain should not format nor strip html)",
+    "Lines": 5
+}

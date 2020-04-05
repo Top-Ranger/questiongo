@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html lang="de">
+
+<head>
+  <title>QuestionGo!</title>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="author" content="Marcus Soll"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="author" href="https://msoll.de/">
+  <link rel="stylesheet" href="/css/questiongo.css">
+  <link rel="icon" type="image/vnd.microsoft.icon" href="/static/favicon.ico">
+</head>
+
+<body>
+  <header>
+    <div style="margin-left: 1%">
+      QuestionGo!
+    </div>
+  </header>
+
+  <div>
+    {{.Text}}
+  </div>
+
+  <br>
+  <hr>
+
+  <noscript><h1>JavaScript is required. Please enable it.</h1></noscript>
+  <div id="__start_link" hidden>
+    <br>
+      <form action="/{{.Key}}" method="GET">
+        <input type="hidden" name="main" value="1">
+        <input style="font-size: x-large; white-space: normal;" type="submit"  value="Start Questionnaire">
+      </form>
+  </div>
+  <p style="font-size: large;"><strong>Responsible person:</strong> {{.Contact}}</p>
+  
+  <script>var e = document.getElementById('__start_link'); e.removeAttribute('hidden');</script>
+
+  <footer>
+    <div>
+      Created by <a href="https://msoll.de/"><u>Marcus Soll</u></a> - <a href="/impressum.html"><u>Impressum</u></a> - <a href="/dsgvo.html"><u>Datenschutzerklärung / Privacy Policy</u></a>
+    </div>
+  </footer>
+</body>
+
+</html>

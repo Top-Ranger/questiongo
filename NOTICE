@@ -1,0 +1,25 @@
+QuestionGo! - A simple survey software
+   created by Marcus Soll (https://msoll.eu)
+++++++++++++++++++++++++++++++++++++++++++++
+
+QuestionGo! is my personal survey software.
+It was developed with simplicity in mind - both in deployment and architecture.
+As such, it might contain certain restrictions in terms of extensibility.
+One example is that questionnaires are loaded once and than treated as immutable.
+I developed the software with my specific needs in mind. It contains everything I need.
+It might not fit your needs. That's ok.
+But don't expect me to go out of my way implementing your requests.
+I'm releasing the software in the hope that it might be helpful to others.
+
+To run it, simply use the following commands:
+go get -u ./...
+go build
+./questiongo
+
+To build the SQLite backend, you have to use the following build command:
+go build -tags="sqlite"
+
+A sample configration can be found in the config folder.
+A sample questionnaire (containing all features) can be found at 'data/test'.
+Results can be found at the page /'results.html' on the server.
+A questionnaire is expect to hold all information in a single directory.

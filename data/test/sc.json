@@ -1,0 +1,10 @@
+{
+    "Random": true,
+    "Required": true,
+    "Format": "markdown",
+    "Question": "This is *Single Choice*",
+    "Answers": [
+        ["sc1", "Answer1"],
+        ["sc2", "Answer2"]
+    ]
+}

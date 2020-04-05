@@ -1,0 +1,5 @@
+questiongo
+data/*/*
+!data/test/*
+./result*
+result/**

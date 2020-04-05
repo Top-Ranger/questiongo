@@ -1,0 +1,8 @@
+{
+    "Format": "plain",
+    "Text": [
+        ["g1", "You are in group 1"],
+        ["g2", "You are in group 2"],
+        ["g3", "You are in group 3"]
+    ]
+}

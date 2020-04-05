@@ -1,0 +1,44 @@
+{
+    "Password": "test",
+    "Open": true,
+    "Start": "start.md",
+    "StartFormat": "markdown",
+    "End": "end.md",
+    "EndFormat": "markdown",
+    "Contact": "Marcus Soll (webmaster@msoll.eu)",
+    "RandomOrderPages": true,
+    "ShowProgress": true,
+    "AllowBack": true,
+    "Pages": [
+        {
+            "RandomOrderQuestions": false,
+            "Questions": [
+                ["display", "display", "display.json"],
+                ["drg", "display random group", "drg.json"],
+                ["r", "range", "range.json"]
+            ]
+        },
+        {
+            "RandomOrderQuestions": true,
+            "Questions": [
+                ["mc", "multiple choice", "mc.json"],
+                ["sc", "single choice", "sc.json"]
+
+            ]
+        },
+        {
+            "RandomOrderQuestions": true,
+            "Questions": [
+                ["t", "text", "text.json"],
+                ["m", "matrix", "matrix.json"]
+            ]
+        },
+        {
+            "RandomOrderQuestions": false,
+            "Questions": [
+                ["date", "date", "date.json"],
+                ["time", "time", "time.json"]
+            ]
+        }
+    ]
+}

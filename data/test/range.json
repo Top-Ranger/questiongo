@@ -1,0 +1,12 @@
+{
+    "Format": "plain",
+    "Question": "This is a range question",
+    "Min": 0,
+    "Max": 100,
+    "Step": 1,
+    "Start": 50,
+    "ShowValue": true,
+    "ShowScale": true,
+    "ScaleStart": "zero",
+    "ScaleEnd": "a hundred"
+}

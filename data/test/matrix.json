@@ -1,0 +1,15 @@
+{
+    "Random": true,
+    "Required": true,
+    "Format": "html",
+    "Title": "<p>This is a Matrix <sup>question</sup></p>",
+    "Answers": [
+        ["1", "Good"],
+        ["2", "Medium"],
+        ["3", "Bad"]
+    ],
+    "Questions": [
+        ["question1", "How is the weather?"],
+        ["question2", "How do you feel?"]
+    ]
+}
