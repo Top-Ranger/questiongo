@@ -21,5 +21,5 @@ go build -tags="sqlite"
 
 A sample configration can be found in the config folder.
 A sample questionnaire (containing all features) can be found at 'data/test'.
-Results can be found at the page /'results.html' on the server.
+Results can be found at the page '/results.html' on the server.
 A questionnaire is expect to hold all information in a single directory.
