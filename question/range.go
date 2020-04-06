@@ -74,8 +74,8 @@ var rangeTemplate = template.Must(template.New("rangeTemplate").Parse(`<label fo
 {{end}}
 {{if .ShowScale}}
 <div style="min-height: 2em">
-<div style="float: left; display: inline">{{.ScaleStart}}</div>
-<div style="float: right; display: inline">{{.ScaleEnd}}</div>
+<div style="float: left;">{{.ScaleStart}}</div>
+<div style="float: right;">{{.ScaleEnd}}</div>
 </div>
 {{end}}
 `))
