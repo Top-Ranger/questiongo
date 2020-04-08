@@ -19,6 +19,7 @@ package main
 import (
 	"archive/zip"
 	"bytes"
+	crand "crypto/rand"
 	"crypto/sha512"
 	"crypto/subtle"
 	"encoding/csv"
@@ -39,13 +40,23 @@ import (
 
 var questionnaireTemplate *template.Template
 var questionnaireStartTemplate *template.Template
+var hashSalt []byte
 
 var questionnairePasswordHash = func(s string) []byte {
-	hash := sha512.Sum512([]byte(s))
+	sum := sha512.New()
+	sum.Write(hashSalt)
+	sum.Write([]byte(s))
+	hash := sum.Sum(nil)
 	return hash[:]
 }
 
 func init() {
+	hashSalt = make([]byte, sha512.Size)
+	_, err := crand.Read(hashSalt)
+	if err != nil {
+		panic(err)
+	}
+
 	funcMap := template.FuncMap{
 		"even": func(i int) bool {
 			return i%2 == 0
