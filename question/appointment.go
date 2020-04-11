@@ -117,6 +117,14 @@ func FactoryAppointment(data []byte, id string) (registry.Question, error) {
 			return nil, fmt.Errorf("appointment: Can not parse '%s' as time - %s", a.Time[i], err.Error())
 		}
 
+		if tn[0] < 0 || tn[0] > 23 {
+			return nil, fmt.Errorf("appointment: Hour of time '%s' must be between 0 and 23", a.Time[i])
+		}
+
+		if tn[1] < 0 || tn[1] > 59 {
+			return nil, fmt.Errorf("appointment: Minute of time '%s' must be between 0 and 59", a.Time[i])
+		}
+
 		// Ensure time format is identical
 		timeTest := fmt.Sprintf("%d:%d", tn[0], tn[1])
 		if test[timeTest] {
