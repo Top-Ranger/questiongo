@@ -81,6 +81,7 @@ func FactoryAppointment(data []byte, id string) (registry.Question, error) {
 
 	t := make([][]int, 0)
 
+	test := make(map[string]bool)
 	for i := range a.Time {
 		tn := make([]int, 2)
 		split := strings.Split(a.Time[i], ":")
@@ -95,6 +96,13 @@ func FactoryAppointment(data []byte, id string) (registry.Question, error) {
 		if err != nil {
 			return nil, fmt.Errorf("appointment: Can not parse '%s' as time - %s", a.Time[i], err.Error())
 		}
+
+		// Ensure time format is identical
+		timeTest := fmt.Sprintf("%d:%d", tn[0], tn[1])
+		if test[timeTest] {
+			return nil, fmt.Errorf("appointment: time '%s' found twice", a.Time[i])
+		}
+		test[timeTest] = true
 
 		t = append(t, tn)
 	}
