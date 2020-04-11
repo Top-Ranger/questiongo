@@ -75,6 +75,7 @@ var displayRandomGroupStatisticsTemplate = template.Must(template.New("displayRa
 <th>Number</th>
 </tr>
 </thead>
+<tbody>
 {{range $i, $e := .Data }}
 <tr>
 <td>{{$e.Group}}</td>

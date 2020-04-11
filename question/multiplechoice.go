@@ -78,6 +78,7 @@ var multiplechoiceStatisticsTemplate = template.Must(template.New("multiplechoic
 <th>Answer (percentage)</th>
 </tr>
 </thead>
+<tbody>
 {{range $i, $e := .Data }}
 <tr>
 <td>{{$e.Question}}</td>

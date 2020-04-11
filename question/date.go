@@ -65,6 +65,7 @@ var dateStatisticsTemplate = template.Must(template.New("dateStatisticTemplate")
 <th>Number</th>
 </tr>
 </thead>
+<tbody>
 {{range $i, $e := .Data }}
 <tr>
 <td {{if $e.Special}}class="th-cell"{{end}}>{{$e.Date}}</td>

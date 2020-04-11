@@ -87,6 +87,7 @@ var matrixTemplate = template.Must(template.New("matrixTemplate").Parse(`{{.Titl
 {{end}}
 </tr>
 </thead>
+<tbody>
 {{range $i, $e := .Data }}
 <tr>
 <td><strong>{{$e.Question}}</strong></td>
