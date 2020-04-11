@@ -48,8 +48,7 @@ func FactoryDisplayRandomGroup(data []byte, id string) (registry.Question, error
 		if len(drg.Text[i]) != 2 {
 			return nil, fmt.Errorf("display random group: Group %d must have exactly 2 values (id, text) (%s)", i, id)
 		}
-		_, ok := testID[drg.Text[i][0]]
-		if ok {
+		if testID[drg.Text[i][0]] {
 			return nil, fmt.Errorf("display random group: ID %s found twice (%s)", drg.Text[i][0], id)
 		}
 		testID[drg.Text[i][0]] = true

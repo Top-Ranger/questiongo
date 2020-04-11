@@ -50,8 +50,7 @@ func FactoryMatrix(data []byte, id string) (registry.Question, error) {
 		if len(m.Answers[i]) != 2 {
 			return nil, fmt.Errorf("matrix: Answer %d must have exactly 2 values (id, text) (%s)", i, id)
 		}
-		_, ok := testID[m.Answers[i][0]]
-		if ok {
+		if testID[m.Answers[i][0]] {
 			return nil, fmt.Errorf("matrix: ID %s found twice (%s)", m.Answers[i][0], id)
 		}
 		testID[m.Answers[i][0]] = true
@@ -62,8 +61,7 @@ func FactoryMatrix(data []byte, id string) (registry.Question, error) {
 		if len(m.Questions[i]) != 2 {
 			return nil, fmt.Errorf("matrix: Answer %d must have exactly 2 values (id, text) (%s)", i, id)
 		}
-		_, ok := testID[m.Questions[i][0]]
-		if ok {
+		if testID[m.Questions[i][0]] {
 			return nil, fmt.Errorf("matrix: ID %s found twice (%s)", m.Questions[i][0], id)
 		}
 		testID[m.Questions[i][0]] = true

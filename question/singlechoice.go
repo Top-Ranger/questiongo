@@ -49,8 +49,7 @@ func FactorySingleChoice(data []byte, id string) (registry.Question, error) {
 		if len(sc.Answers[i]) != 2 {
 			return nil, fmt.Errorf("singlechoice: Answer %d must have exactly 2 values (id, text) (%s)", i, id)
 		}
-		_, ok := testID[sc.Answers[i][0]]
-		if ok {
+		if testID[sc.Answers[i][0]] {
 			return nil, fmt.Errorf("singlechoice: ID %s found twice (%s)", sc.Answers[i][0], id)
 		}
 		testID[sc.Answers[i][0]] = true

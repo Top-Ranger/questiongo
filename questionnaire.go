@@ -406,8 +406,7 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 			if strings.Contains(q.Pages[p].Questions[i][0], "_") {
 				return Questionnaire{}, fmt.Errorf("ID %s must not have '_' (%s)", q.Pages[p].Questions[i][0], file)
 			}
-			_, ok := testID[q.Pages[p].Questions[i][0]]
-			if ok {
+			if testID[q.Pages[p].Questions[i][0]] {
 				return Questionnaire{}, fmt.Errorf("ID %s found twice (%s)", q.Pages[p].Questions[i][0], file)
 			}
 			testID[q.Pages[p].Questions[i][0]] = true

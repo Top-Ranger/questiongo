@@ -50,8 +50,7 @@ func FactoryMultipleChoice(data []byte, id string) (registry.Question, error) {
 		if len(mc.Answers[i]) != 2 {
 			return nil, fmt.Errorf("multiplechoice: Answer %d must have exactly 2 values (id, text) (%s)", i, id)
 		}
-		_, ok := testID[mc.Answers[i][0]]
-		if ok {
+		if testID[mc.Answers[i][0]] {
 			return nil, fmt.Errorf("multiplechoice: ID %s found twice (%s)", mc.Answers[i][0], id)
 		}
 		testID[mc.Answers[i][0]] = true
