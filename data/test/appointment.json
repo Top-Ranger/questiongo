@@ -1,0 +1,11 @@
+{
+    "Format": "plain",
+    "Text": "Please select the dates according to your schedule",
+    "NameRequired": true,
+    "DisallowVotesInPast": false,
+    "FirstDate": "2020-01-01",
+    "LastDate": "2020-01-14",
+    "Days": ["tue", "wed", "thu", "fri", "sat", "sun"],
+    "Time": ["08:00", "10:00", "12:00", "14:00", "16:00"],
+    "ExceptDays": ["2020-01-05"]
+}

@@ -37,7 +37,8 @@
             "RandomOrderQuestions": false,
             "Questions": [
                 ["date", "date", "date.json"],
-                ["time", "time", "time.json"]
+                ["time", "time", "time.json"],
+                ["a", "appointment", "appointment.json"]
             ]
         }
     ]
