@@ -330,6 +330,7 @@ func (a appointment) GetStatistics(data []string) [][]string {
 		for j := range a.dates {
 			s[j+1] = results[a.dates[j].ID]
 		}
+		result[i] = s
 	}
 	return result
 }
