@@ -32,6 +32,7 @@ import (
 
 var appointmentDateFormatRead = "2006-01-02"
 var appointmentDateFormatWrite = "Monday, 02.01.2006 15:04"
+var appointmentDateFormatWriteNoTime = "Monday, 02.01.2006"
 var appointmentDateFormatID = "02.01.2006T15:04"
 
 func init() {
@@ -103,6 +104,15 @@ func FactoryAppointment(data []byte, id string) (registry.Question, error) {
 
 	test := make(map[string]bool)
 	for i := range a.Time {
+		if a.Time[i] == "notime" {
+			if test["notime"] {
+				return nil, fmt.Errorf("appointment: time '%s' found twice", a.Time[i])
+			}
+			test["notime"] = true
+			t = append(t, []int{-1, -1})
+			continue
+		}
+
 		tn := make([]int, 2)
 		split := strings.Split(a.Time[i], ":")
 		if len(split) != 2 {
@@ -151,7 +161,14 @@ func FactoryAppointment(data []byte, id string) (registry.Question, error) {
 
 	for fd.Before(ld) {
 		for i := range t {
-			newTime := time.Date(fd.Year(), fd.Month(), fd.Day(), t[i][0], t[i][1], 0, 0, fd.Location())
+			var newTime time.Time
+
+			if t[i][0] == -1 {
+				// Special value "notime"
+				newTime = time.Date(fd.Year(), fd.Month(), fd.Day(), 23, 59, 59, 999999999, fd.Location())
+			} else {
+				newTime = time.Date(fd.Year(), fd.Month(), fd.Day(), t[i][0], t[i][1], 0, 0, fd.Location())
+			}
 
 			add := w[newTime.Weekday()]
 			for ign := range ignore {
@@ -159,11 +176,20 @@ func FactoryAppointment(data []byte, id string) (registry.Question, error) {
 			}
 
 			if add {
-				a.dates = append(a.dates, appointmentDate{
-					ID:      fmt.Sprintf("%s_%s", id, newTime.Format(appointmentDateFormatID)),
-					Display: newTime.Format(appointmentDateFormatWrite),
-					time:    newTime,
-				})
+				if t[i][0] == -1 {
+					// Special value "notime"
+					a.dates = append(a.dates, appointmentDate{
+						ID:      fmt.Sprintf("%s_notime", id),
+						Display: newTime.Format(appointmentDateFormatWriteNoTime),
+						time:    newTime,
+					})
+				} else {
+					a.dates = append(a.dates, appointmentDate{
+						ID:      fmt.Sprintf("%s_%s", id, newTime.Format(appointmentDateFormatID)),
+						Display: newTime.Format(appointmentDateFormatWrite),
+						time:    newTime,
+					})
+				}
 			}
 		}
 		fd = fd.AddDate(0, 0, 1)
