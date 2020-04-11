@@ -57,7 +57,7 @@ var dateTemplate = template.Must(template.New("dateTemplate").Parse(`<label for=
 <input type="date" id="{{.QID}}" name="{{.QID}}" placeholder="yyyy-mm-dd" pattern="^\d{4}-\d{2}-\d{2}$" {{if .Required}} required {{end}}>
 `))
 
-var dateStatisticsTemplate = template.Must(template.New("testStatisticTemplate").Parse(`{{.Question}}<br>
+var dateStatisticsTemplate = template.Must(template.New("dateStatisticTemplate").Parse(`{{.Question}}<br>
 <table>
 <thead>
 <tr>

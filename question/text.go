@@ -53,7 +53,7 @@ var textTemplate = template.Must(template.New("textTemplate").Parse(`<label for=
 <textarea form="questionnaire" id="{{.QID}}" name="{{.QID}}" rows="{{.Rows}}" {{if .Required}} required {{end}}></textarea>
 `))
 
-var textStatisticsTemplate = template.Must(template.New("testStatisticTemplate").Parse(`{{.Question}}
+var textStatisticsTemplate = template.Must(template.New("textStatisticTemplate").Parse(`{{.Question}}
 <ol>
 {{range $i, $e := .Data }}
 <li>{{$e}}</li>
