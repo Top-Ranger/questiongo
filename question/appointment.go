@@ -34,6 +34,7 @@ var appointmentDateFormatRead = "2006-01-02"
 var appointmentDateFormatWrite = "Monday, 02.01.2006 15:04"
 var appointmentDateFormatWriteNoTime = "Monday, 02.01.2006"
 var appointmentDateFormatID = "02.01.2006T15:04"
+var appointmentDateFormatIDNoTime = "02.01.2006"
 
 func init() {
 	err := registry.RegisterQuestionType(FactoryAppointment, "appointment")
@@ -179,7 +180,7 @@ func FactoryAppointment(data []byte, id string) (registry.Question, error) {
 				if t[i][0] == -1 {
 					// Special value "notime"
 					a.dates = append(a.dates, appointmentDate{
-						ID:      fmt.Sprintf("%s_notime", id),
+						ID:      fmt.Sprintf("%s_%s_notime", id, newTime.Format(appointmentDateFormatIDNoTime)),
 						Display: newTime.Format(appointmentDateFormatWriteNoTime),
 						time:    newTime,
 					})
