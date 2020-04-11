@@ -239,7 +239,7 @@ func appointmentPoints(answer string) float64 {
 }
 
 var appointmentTemplate = template.Must(template.New("appointmentTemplate").Parse(`{{.Text}}<br>
-<p><label for="{{.ID}}_name">Name {{if .NameRequired}}(<em>required</em>){{else}}(<em>optional</em>){{end}}:</label> <input type="text" id="{{.ID}}_name" name="{{.ID}}_name" placeholder="Name" {{if .NameRequired}}required{{end}}></p>
+<p><label for="{{.ID}}_name">Name {{if .NameRequired}}(<em>required</em>){{else}}(<em>optional</em>){{end}}:</label> <input type="text" id="{{.ID}}_name" name="{{.ID}}_name" placeholder="Name" maxlength="150" {{if .NameRequired}}required{{end}}></p>
 <table>
 <thead>
 <tr>
@@ -280,14 +280,14 @@ var appointmentStatisticsTemplate = template.Must(template.New("appointmentStati
 </thead>
 {{range $i, $e := .Data }}
 <tr>
-<td><strong>{{$e.Name}}</strong></td>
+<td style="white-space:nowrap;"><strong>{{$e.Name}}</strong></td>
 {{range $I, $E := .Answers }}
 <td class="centre" {{if index $E 0}}bgcolor="{{index $E 0}}"{{end}}>{{index $E 1}}</td>
 {{end}}
 </tr>
 {{end}}
 <tr>
-<td class="th-cell"><strong>Points</strong></td>
+<td class="th-cell" style="white-space:nowrap;"><strong>Points</strong></td>
 {{range $i, $e := .Points }}
 <td class="centre{{if eq $i $.BestNumber}} th-cell{{end}}">{{printf "%.2f" $e}}</td>
 {{end}}
