@@ -239,7 +239,7 @@ func appointmentPoints(answer string) float64 {
 }
 
 var appointmentTemplate = template.Must(template.New("appointmentTemplate").Parse(`{{.Text}}<br>
-<p><label for="{{.ID}}_name">Name {{if .NameRequired}}(<em>required</em>){{else}}(<em>optional</em>){{end}}:</label> <input type="text" id="{{.ID}}_name" name="{{.ID}}_name" placeholder="Name" maxlength="150" {{if .NameRequired}}required{{end}}></p>
+<p><label for="{{.ID}}_name">Name {{if .NameRequired}}<em>(required)</em>{{else}}<em>(optional)</em>{{end}}:</label> <input type="text" id="{{.ID}}_name" name="{{.ID}}_name" placeholder="Name" maxlength="150" {{if .NameRequired}}required{{end}}></p>
 <table>
 <thead>
 <tr>
