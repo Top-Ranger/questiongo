@@ -41,6 +41,26 @@ func init() {
 	}
 }
 
+type appointmentSort [][]int
+
+func (a appointmentSort) Len() int {
+	return len(a)
+}
+
+func (a appointmentSort) Less(i, j int) bool {
+	if a[i][0] < a[j][0] {
+		return true
+	}
+	if a[i][0] > a[j][0] {
+		return false
+	}
+	return a[i][1] < a[j][1]
+}
+
+func (a appointmentSort) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+
 // FactoryAppointment is the factory for appointment questions.
 func FactoryAppointment(data []byte, id string) (registry.Question, error) {
 	var a appointment
@@ -106,6 +126,8 @@ func FactoryAppointment(data []byte, id string) (registry.Question, error) {
 
 		t = append(t, tn)
 	}
+
+	sort.Sort(appointmentSort(t))
 
 	ignore := make([]time.Time, len(a.ExceptDays))
 
