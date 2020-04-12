@@ -54,11 +54,14 @@ var textTemplate = template.Must(template.New("textTemplate").Parse(`<label for=
 `))
 
 var textStatisticsTemplate = template.Must(template.New("textStatisticTemplate").Parse(`{{.Question}}
+<details>
+<summary>show results</summary>
 <ol>
 {{range $i, $e := .Data }}
 <li>{{$e}}</li>
 {{end}}
 </ol>
+</details>
 `))
 
 type textTemplateStruct struct {
