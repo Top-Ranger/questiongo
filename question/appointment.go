@@ -263,6 +263,7 @@ var appointmentTemplate = template.Must(template.New("appointmentTemplate").Pars
 {{end}}
 </tbody>
 </table>
+<p><label for="{{.ID}}_comment">Comment <em>(optional)</em>:</label> <input type="text" id="{{.ID}}_comment" name="{{.ID}}_comment" placeholder="Comment" maxlength="500"></p>
 `))
 
 var appointmentStatisticsTemplate = template.Must(template.New("appointmentStatisticsTemplate").Parse(`{{.Text}}
@@ -279,9 +280,10 @@ var appointmentStatisticsTemplate = template.Must(template.New("appointmentStati
 {{end}}
 </tr>
 </thead>
+<tbody>
 {{range $i, $e := .Data }}
 <tr>
-<td style="white-space:nowrap;"><strong>{{$e.Name}}</strong></td>
+<td style="white-space:nowrap;">{{if $e.Comment}}<abbr title="{{$e.Comment}}">{{end}}<strong>{{$e.Name}}</strong>{{if $e.Comment}}</abbr>{{end}}</td>
 {{range $I, $E := .Answers }}
 <td class="centre" {{if index $E 0}}bgcolor="{{index $E 0}}"{{end}}>{{index $E 1}}</td>
 {{end}}
@@ -293,6 +295,7 @@ var appointmentStatisticsTemplate = template.Must(template.New("appointmentStati
 <td class="centre{{if eq $i $.BestNumber}} th-cell{{end}}">{{printf "%.2f" $e}}</td>
 {{end}}
 </tr>
+</tbody>
 </table>
 </div>
 </details>
@@ -316,6 +319,7 @@ type appointmentStatisticsTemplateStruct struct {
 
 type appointmentStatisticsTemplateStructInner struct {
 	Name    string
+	Comment string
 	Answers [][]string // [colour, value]
 }
 
@@ -372,8 +376,9 @@ func (a appointment) GetHTML() template.HTML {
 }
 
 func (a appointment) GetStatisticsHeader() []string {
-	s := make([]string, len(a.dates)+1)
+	s := make([]string, len(a.dates)+2)
 	s[0] = fmt.Sprintf("%s_name", a.id)
+	s[len(a.dates)+1] = fmt.Sprintf("%s_comment", a.id)
 	for i := range a.dates {
 		s[i+1] = a.dates[i].ID
 	}
@@ -383,7 +388,7 @@ func (a appointment) GetStatisticsHeader() []string {
 func (a appointment) GetStatistics(data []string) [][]string {
 	result := make([][]string, len(data))
 	for i := range data {
-		s := make([]string, len(a.dates)+1)
+		s := make([]string, len(a.dates)+2)
 		var results map[string]string
 		err := json.Unmarshal([]byte(data[i]), &results)
 		if err != nil {
@@ -392,6 +397,7 @@ func (a appointment) GetStatistics(data []string) [][]string {
 			continue
 		}
 		s[0] = results[fmt.Sprintf("%s_name", a.id)]
+		s[len(a.dates)+1] = results[fmt.Sprintf("%s_comment", a.id)]
 		for j := range a.dates {
 			s[j+1] = results[a.dates[j].ID]
 		}
@@ -423,8 +429,14 @@ func (a appointment) GetStatisticsDisplay(data []string) template.HTML {
 		}
 
 		inner := appointmentStatisticsTemplateStructInner{
-			Name:    results[fmt.Sprintf("%s_name", a.id)],
+			Name:    "[unknown]",
+			Comment: results[fmt.Sprintf("%s_comment", a.id)],
 			Answers: make([][]string, len(a.dates)),
+		}
+
+		name, ok := results[fmt.Sprintf("%s_name", a.id)]
+		if ok {
+			inner.Name = name
 		}
 
 		for i := range a.dates {
@@ -458,6 +470,9 @@ func (a appointment) GetDatabaseEntry(data map[string][]string) string {
 	results := make(map[string]string)
 	if len(data[fmt.Sprintf("%s_name", a.id)]) != 0 {
 		results[fmt.Sprintf("%s_name", a.id)] = data[fmt.Sprintf("%s_name", a.id)][0]
+	}
+	if len(data[fmt.Sprintf("%s_comment", a.id)]) != 0 {
+		results[fmt.Sprintf("%s_comment", a.id)] = data[fmt.Sprintf("%s_comment", a.id)][0]
 	}
 	for i := range a.dates {
 		if len(data[a.dates[i].ID]) != 0 {
