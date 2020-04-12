@@ -90,7 +90,7 @@ var matrixTemplate = template.Must(template.New("matrixTemplate").Parse(`{{.Titl
 <tr>
 <td><strong>{{$e.Question}}</strong></td>
 {{range $I, $E := $.Answer }}
-<td class="centre"><input type="radio" name="{{$.GID}}_{{$e.QID}}" value="{{$E}}" {{if $.Required}} required {{end}}></td>
+<td class="centre" title="{{$e.Question}} - {{index $E 1}}"><input title="{{$e.Question}} - {{index $E 1}}" type="radio" name="{{$.GID}}_{{$e.QID}}" value="{{index $E 0}}" {{if $.Required}} required {{end}}></td>
 {{end}}
 </tr>
 {{end}}
@@ -134,7 +134,7 @@ type matrixTemplateStruct struct {
 	Required bool
 	Header   []template.HTML
 	Data     []matrixTemplateStructInner
-	Answer   []string
+	Answer   [][]string
 	GID      string
 }
 
@@ -172,7 +172,7 @@ func (m matrix) GetHTML() template.HTML {
 		Required: m.Required,
 		Header:   make([]template.HTML, len(m.Answers)),
 		Data:     make([]matrixTemplateStructInner, 0, len(m.Questions)),
-		Answer:   make([]string, len(m.Answers)),
+		Answer:   make([][]string, len(m.Answers)),
 		GID:      m.id,
 	}
 	for i := range m.Questions {
@@ -184,7 +184,7 @@ func (m matrix) GetHTML() template.HTML {
 	}
 	for i := range m.Answers {
 		td.Header[i] = f.Format([]byte(m.Answers[i][1]))
-		td.Answer[i] = m.Answers[i][0]
+		td.Answer[i] = []string{m.Answers[i][0], m.Answers[i][1]}
 	}
 
 	if m.Random {

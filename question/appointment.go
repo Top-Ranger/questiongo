@@ -255,10 +255,10 @@ var appointmentTemplate = template.Must(template.New("appointmentTemplate").Pars
 {{range $i, $e := .Data }}
 <tr>
 <td>{{if $e.Disabled}}<s>{{else}}<strong>{{end}}{{$e.Display}}{{if $e.Disabled}}</s>{{else}}</strong>{{end}}</td>
-<td class="centre" bgcolor="#5EFF5E"><input type="radio" name="{{$e.ID}}" value="✓" {{if $e.Disabled}} disabled {{end}}></td>
-<td class="centre" bgcolor="#FFE75E"><input type="radio" name="{{$e.ID}}" value="👎" {{if $e.Disabled}} disabled {{end}}></td>
-<td class="centre" bgcolor="#FF5E66"><input type="radio" name="{{$e.ID}}" value="X" {{if $e.Disabled}} disabled {{end}}></td>
-<td class="centre" bgcolor="#DBD9E2"><input type="radio" name="{{$e.ID}}" value="?" {{if $e.Disabled}} disabled {{end}}></td>
+<td class="centre" bgcolor="#5EFF5E" title="{{$e.Display}} - ✓"><input title="{{$e.Display}} - ✓" type="radio" name="{{$e.ID}}" value="✓" {{if $e.Disabled}} disabled {{end}}></td>
+<td class="centre" bgcolor="#FFE75E" title="{{$e.Display}} - 👎"><input title="{{$e.Display}} - 👎" type="radio" name="{{$e.ID}}" value="👎" {{if $e.Disabled}} disabled {{end}}></td>
+<td class="centre" bgcolor="#FF5E66" title="{{$e.Display}} - X"><input title="{{$e.Display}} - X" type="radio" name="{{$e.ID}}" value="X" {{if $e.Disabled}} disabled {{end}}></td>
+<td class="centre" bgcolor="#DBD9E2" title="{{$e.Display}} - ?"><input title="{{$e.Display}} - ?" type="radio" name="{{$e.ID}}" value="?" {{if $e.Disabled}} disabled {{end}}></td>
 </tr>
 {{end}}
 </tbody>
