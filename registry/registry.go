@@ -61,6 +61,11 @@ type Question interface {
 	// data holds all database entries currently available.
 	GetStatisticsDisplay(data []string) template.HTML
 
+	// ValidateInput validates whether the given data can be considered valid (e.g. all required input is there).
+	// The method must return error != nil if the input is not valid.
+	// The method must return error == nil if the input is valid.
+	ValidateInput(data map[string][]string) error
+
 	// GetDatabaseEntry returns a string representation of the results of the question.
 	// The data map returns the values of the POST request of the client, filtered by questions.
 	GetDatabaseEntry(data map[string][]string) string

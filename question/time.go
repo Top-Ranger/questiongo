@@ -190,6 +190,21 @@ func (t timeQuestion) GetStatisticsDisplay(data []string) template.HTML {
 	return template.HTML(output.Bytes())
 }
 
+func (t timeQuestion) ValidateInput(data map[string][]string) error {
+	if len(data[t.id]) >= 1 && data[t.id][0] != "" {
+		// Valitime Date
+		_, err := time.Parse("15:04", data[t.id][0])
+		if err == nil {
+			return nil
+		}
+		return fmt.Errorf("time: Can not parse time '%s'", data[t.id][0])
+	}
+	if t.Required {
+		return fmt.Errorf("time: Required, but no input found")
+	}
+	return nil
+}
+
 func (t timeQuestion) GetDatabaseEntry(data map[string][]string) string {
 	if len(data[t.id]) >= 1 {
 		if data[t.id][0] == "" {

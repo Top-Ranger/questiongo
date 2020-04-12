@@ -314,6 +314,29 @@ func (m matrix) GetStatisticsDisplay(data []string) template.HTML {
 	return template.HTML(output.Bytes())
 }
 
+func (m matrix) ValidateInput(data map[string][]string) error {
+	for i := range m.Questions {
+		r, ok := data[fmt.Sprintf("%s_%s", m.id, m.Questions[i][0])]
+		if ok && len(r) >= 1 {
+			found := false
+			for j := range m.Answers {
+				if r[0] == m.Answers[j][0] {
+					found = true
+					break
+				}
+			}
+			if !found {
+				return fmt.Errorf("matrix: Unknown id '%s' for question '%s'", r[0], fmt.Sprintf("%s_%s", m.id, m.Questions[i][0]))
+			}
+		} else {
+			if m.Required {
+				return fmt.Errorf("matrix: '%s' required, but no input found", fmt.Sprintf("%s_%s", m.id, m.Questions[i][0]))
+			}
+		}
+	}
+	return nil
+}
+
 func (m matrix) GetDatabaseEntry(data map[string][]string) string {
 	result := make([]string, len(m.Questions))
 	for i := range m.Questions {

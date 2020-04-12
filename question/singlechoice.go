@@ -223,11 +223,31 @@ func (sc singleChoice) GetStatisticsDisplay(data []string) template.HTML {
 	return template.HTML(output.Bytes())
 }
 
+func (sc singleChoice) ValidateInput(data map[string][]string) error {
+	r, ok := data[sc.id]
+	if !ok {
+		if sc.Required {
+			return fmt.Errorf("singlechoice: Required, but no input found")
+		}
+		return nil
+	}
+
+	if len(r) != 1 {
+		return fmt.Errorf("sindlechoice: Malformed input")
+	}
+	for i := range sc.Answers {
+		if r[0] == sc.Answers[i][0] {
+			return nil
+		}
+	}
+	return fmt.Errorf("singlechoice: Unknown id '%s'", r[0])
+}
+
 func (sc singleChoice) GetDatabaseEntry(data map[string][]string) string {
 	result := ""
 	r, ok := data[sc.id]
 	if ok && len(r) == 1 {
-		result = data[sc.id][0]
+		result = r[0]
 	}
 	return result
 }

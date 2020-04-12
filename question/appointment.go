@@ -429,14 +429,13 @@ func (a appointment) GetStatisticsDisplay(data []string) template.HTML {
 		}
 
 		inner := appointmentStatisticsTemplateStructInner{
-			Name:    "[unknown]",
+			Name:    results[fmt.Sprintf("%s_name", a.id)],
 			Comment: results[fmt.Sprintf("%s_comment", a.id)],
 			Answers: make([][]string, len(a.dates)),
 		}
 
-		name, ok := results[fmt.Sprintf("%s_name", a.id)]
-		if ok {
-			inner.Name = name
+		if inner.Name == "" {
+			inner.Name = "[unknown]"
 		}
 
 		for i := range a.dates {
@@ -464,6 +463,34 @@ func (a appointment) GetStatisticsDisplay(data []string) template.HTML {
 		log.Printf("date: Error executing template (%s)", err.Error())
 	}
 	return template.HTML(output.Bytes())
+}
+
+func (a appointment) ValidateInput(data map[string][]string) error {
+	if !a.NameRequired {
+		return nil
+	}
+	if len(data[fmt.Sprintf("%s_name", a.id)]) == 0 {
+		return fmt.Errorf("appointment: No name found")
+	}
+	if len(data[fmt.Sprintf("%s_name", a.id)][0]) == 0 {
+		return fmt.Errorf("appointment: Name has zero length")
+	}
+
+	now := time.Now()
+	for i := range a.dates {
+		if len(data[a.dates[i].ID]) != 0 {
+			if a.DisallowVotesInPast && a.dates[i].time.Before(now) {
+				return fmt.Errorf("appointment: answer '%s' is in past (currently: %s)", a.dates[i].ID, now.Format(appointmentDateFormatWrite))
+			}
+			switch data[a.dates[i].ID][0] {
+			case "✓", "👎", "X", "?":
+				// Valid answer
+			default:
+				return fmt.Errorf("appointment: Unknown answer '%s'", data[a.dates[i].ID][0])
+			}
+		}
+	}
+	return nil
 }
 
 func (a appointment) GetDatabaseEntry(data map[string][]string) string {

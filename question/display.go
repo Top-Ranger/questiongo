@@ -85,6 +85,10 @@ func (d display) GetStatisticsDisplay(data []string) template.HTML {
 	return template.HTML(strings.Join([]string{"<div>", formatted, "</div>", "<p><em>Display has no results</em></p>"}, "\n"))
 }
 
+func (d display) ValidateInput(data map[string][]string) error {
+	return nil
+}
+
 func (d display) GetDatabaseEntry(data map[string][]string) string {
 	return ""
 }

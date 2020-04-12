@@ -38,6 +38,9 @@ import (
 	"github.com/Top-Ranger/questiongo/registry"
 )
 
+// ErrValidation represents an error related to validating answer input
+type ErrValidation error
+
 var questionnaireTemplate *template.Template
 var questionnaireStartTemplate *template.Template
 var hashSalt []byte
@@ -352,6 +355,18 @@ func (q Questionnaire) SaveData(r *http.Request) error {
 		m[k] = r.Form[k]
 	}
 
+	// Validate input first
+	for i := range q.allQuestions {
+		m, ok := results[q.allQuestions[i].GetID()]
+		if !ok {
+			m = make(map[string][]string)
+		}
+		err := q.allQuestions[i].ValidateInput(m)
+		if err != nil {
+			return ErrValidation(fmt.Errorf("save data: Validation failed for '%s - %s': %s", q.id, q.allQuestions[i].GetID(), err.Error()))
+		}
+	}
+
 	// We need to ensure the order is preserved and that parallel execution does not mess it up
 	q.saveMutex.Lock()
 	defer q.saveMutex.Unlock()
@@ -363,7 +378,7 @@ func (q Questionnaire) SaveData(r *http.Request) error {
 		s := q.allQuestions[i].GetDatabaseEntry(m)
 		err := safe.SaveData(q.id, q.allQuestions[i].GetID(), s)
 		if err != nil {
-			log.Printf("save data: Can not save questionnaire data for %s - %s: %s", q.id, q.allQuestions[i].GetID(), err.Error())
+			log.Printf("save data: Can not save questionnaire data for '%s - %s': %s", q.id, q.allQuestions[i].GetID(), err.Error())
 		}
 	}
 

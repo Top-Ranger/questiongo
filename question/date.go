@@ -191,6 +191,21 @@ func (d dateQuestion) GetStatisticsDisplay(data []string) template.HTML {
 	return template.HTML(output.Bytes())
 }
 
+func (d dateQuestion) ValidateInput(data map[string][]string) error {
+	if len(data[d.id]) >= 1 && data[d.id][0] != "" {
+		// Validate Date
+		_, err := time.Parse("2006-01-02", data[d.id][0])
+		if err == nil {
+			return nil
+		}
+		return fmt.Errorf("date: Can not parse date '%s'", data[d.id][0])
+	}
+	if d.Required {
+		return fmt.Errorf("date: Required, but no input found")
+	}
+	return nil
+}
+
 func (d dateQuestion) GetDatabaseEntry(data map[string][]string) string {
 	if len(data[d.id]) >= 1 {
 		if data[d.id][0] == "" {

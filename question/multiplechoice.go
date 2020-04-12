@@ -246,6 +246,10 @@ func (mc multipleChoice) GetStatisticsDisplay(data []string) template.HTML {
 	return template.HTML(output.Bytes())
 }
 
+func (mc multipleChoice) ValidateInput(data map[string][]string) error {
+	return nil
+}
+
 func (mc multipleChoice) GetDatabaseEntry(data map[string][]string) string {
 	result := make([]bool, len(mc.Answers))
 	for i := range mc.Answers {

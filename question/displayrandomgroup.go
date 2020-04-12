@@ -178,9 +178,22 @@ func (drg displayRandomGroup) GetStatisticsDisplay(data []string) template.HTML 
 	output := bytes.NewBuffer(make([]byte, 0))
 	err := displayRandomGroupStatisticsTemplate.Execute(output, td)
 	if err != nil {
-		log.Printf("singlechoice: Error executing template (%s)", err.Error())
+		log.Printf("display random group: Error executing template (%s)", err.Error())
 	}
 	return template.HTML(output.Bytes())
+}
+
+func (drg displayRandomGroup) ValidateInput(data map[string][]string) error {
+	r, ok := data[drg.id]
+	if !ok || len(r) == 0 {
+		return fmt.Errorf("display random group: No input found")
+	}
+	for i := range drg.Text {
+		if r[0] == drg.Text[i][0] {
+			return nil
+		}
+	}
+	return fmt.Errorf("display random group: Unknown group '%s'", r[0])
 }
 
 func (drg displayRandomGroup) GetDatabaseEntry(data map[string][]string) string {

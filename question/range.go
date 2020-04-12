@@ -49,6 +49,10 @@ func FactoryRange(data []byte, id string) (registry.Question, error) {
 		return nil, fmt.Errorf("range: max (%d) must be larger than min (%d) (%s)", r.Max, r.Min, id)
 	}
 
+	if r.Step < 1 {
+		return nil, fmt.Errorf("range: step (%d) must be at least 1", r.Step)
+	}
+
 	if r.Step > r.Max-r.Min {
 		return nil, fmt.Errorf("range: step (%d) must be smaller than the range (%d) (%s)", r.Step, r.Max-r.Min, id)
 	}
@@ -261,6 +265,27 @@ func (r rangeQuestion) GetStatisticsDisplay(data []string) template.HTML {
 		log.Printf("time: Error executing template (%s)", err.Error())
 	}
 	return template.HTML(output.Bytes())
+}
+
+func (r rangeQuestion) ValidateInput(data map[string][]string) error {
+	if len(data[r.id]) == 0 {
+		return fmt.Errorf("range (%s): No input found", r.id)
+	}
+	value, err := strconv.Atoi(data[r.id][0])
+	if err != nil {
+		return fmt.Errorf("range: Input '%s' malformed (%s)", data[r.id][0], err.Error())
+	}
+	if value == r.Start {
+		return nil
+	}
+	i := r.Min
+	for i <= r.Max {
+		if i == value {
+			return nil
+		}
+		i += r.Step
+	}
+	return fmt.Errorf("range: Input '%d' not in range", value)
 }
 
 func (r rangeQuestion) GetDatabaseEntry(data map[string][]string) string {

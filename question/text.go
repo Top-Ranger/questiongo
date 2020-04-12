@@ -139,6 +139,16 @@ func (t text) GetStatisticsDisplay(data []string) template.HTML {
 	return template.HTML(output.Bytes())
 }
 
+func (t text) ValidateInput(data map[string][]string) error {
+	if t.Required && len(data[t.id]) == 0 {
+		return fmt.Errorf("text: Required, but no input found")
+	}
+	if len(data[t.id][0]) == 0 {
+		return fmt.Errorf("text: Required, but no input found")
+	}
+	return nil
+}
+
 func (t text) GetDatabaseEntry(data map[string][]string) string {
 	if len(data[t.id]) >= 1 {
 		return data[t.id][0]

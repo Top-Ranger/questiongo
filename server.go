@@ -297,6 +297,13 @@ func answerHandle(rw http.ResponseWriter, r *http.Request) {
 	}
 	err := q.SaveData(r)
 	if err != nil {
+		_, validationError := err.(ErrValidation)
+		if validationError {
+			log.Printf("server: received bad request (%s)", err.Error())
+			rw.WriteHeader(http.StatusBadRequest)
+			textTemplate.Execute(rw, textTemplateStruct{"<p>An error occured with your request. Please try again.</p><p>If the problem persists, please <a href=\"/impressum.html\">contact us</a>.</p>"})
+			return
+		}
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
