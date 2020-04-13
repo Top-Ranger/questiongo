@@ -21,6 +21,8 @@
       QuestionGo!
     </div>
   </header>
+  
+  <h1>{{.Key}}</h1>
 
   {{range $i, $e := .Results }}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}}>
