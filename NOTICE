@@ -1,3 +1,4 @@
+++++++++++++++++++++++++++++++++++++++++++++
 QuestionGo! - A simple survey software
    created by Marcus Soll (https://msoll.eu)
 ++++++++++++++++++++++++++++++++++++++++++++
@@ -23,3 +24,12 @@ A sample configration can be found in the config folder.
 A sample questionnaire (containing all features) can be found at 'data/test'.
 Results can be found at the page '/results.html' on the server.
 A questionnaire is expect to hold all information in a single directory.
+
+QuestionGo! is licenced under Apache-2.0.
+
+++++++++++++++++++++++++++++++++++++++++++++
+Bundeled libraries
+++++++++++++++++++++++++++++++++++++++++++++
+QuestionGo is bundeled with Chart.js v2.9.3 (https://www.chartjs.org), which is licenced under the MIT License.
+QuestionGo is bundeled with moment.js (https://momentjs.com/) 2.24.0, which is licenced under the MIT License.
+QuestionGo is bundeled with the Oxygen font, which is licenced under the SIL Open Font License, Version 1.1.
