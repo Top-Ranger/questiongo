@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"math/rand"
 )
 
 // ChartValue represents a single data point in a chart.
@@ -93,12 +92,34 @@ type chartTemplateStruct struct {
 }
 
 func getColours(n int) []string {
-	s := rand.NewSource(14111994)
-	r := rand.New(s)
+	// Error case.
+	if n <= 0 {
+		return nil
+	}
+
+	// Special case: just one data type. Just return a fitting colour.
+	if n == 1 {
+		return []string{"#503050"}
+	}
+
+	// Generate colours based on hsl colour scheme. This allows deterministic distinct colours.
+	h := 0
+	s := 100
+	l := 75
 
 	c := make([]string, n)
 	for i := range c {
-		c[i] = fmt.Sprintf("rgb(%d,%d,%d)", r.Intn(256), r.Intn(256), r.Intn(256))
+		c[i] = fmt.Sprintf("hsl(%d,%d%%,%d%%)", h, s, l)
+		h = h + 60
+		if h >= 360 {
+			h = h - 360
+			s = s - 50
+			l = l - 25
+			if s <= 0 {
+				s = 100
+				l = 75
+			}
+		}
 	}
 	return c
 }
