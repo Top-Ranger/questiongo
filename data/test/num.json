@@ -1,0 +1,10 @@
+{
+    "Format": "plain",
+    "Question": "This is a number question (range: 0-100; step: 5)",
+    "Required": true,
+    "HasMinMax": true,
+    "Min": 0,
+    "Max": 100,
+    "HasStep": true,
+    "Step": 5
+}

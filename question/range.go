@@ -194,7 +194,7 @@ func (r rangeQuestion) GetHTML() template.HTML {
 	output := bytes.NewBuffer(make([]byte, 0))
 	err := rangeTemplate.Execute(output, td)
 	if err != nil {
-		log.Printf("text: Error executing template (%s)", err.Error())
+		log.Printf("range: Error executing template (%s)", err.Error())
 	}
 	return template.HTML(output.Bytes())
 }
@@ -262,13 +262,13 @@ func (r rangeQuestion) GetStatisticsDisplay(data []string) template.HTML {
 	output := bytes.NewBuffer(make([]byte, 0))
 	err := rangeStatisticsTemplate.Execute(output, td)
 	if err != nil {
-		log.Printf("time: Error executing template (%s)", err.Error())
+		log.Printf("range: Error executing template (%s)", err.Error())
 	}
 	return template.HTML(output.Bytes())
 }
 
 func (r rangeQuestion) ValidateInput(data map[string][]string) error {
-	if len(data[r.id]) == 0 {
+	if len(data[r.id]) == 0 || data[r.id][0] == "" {
 		return fmt.Errorf("range (%s): No input found", r.id)
 	}
 	value, err := strconv.Atoi(data[r.id][0])

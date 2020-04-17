@@ -15,7 +15,8 @@
             "Questions": [
                 ["display", "display", "display.json"],
                 ["drg", "display random group", "drg.json"],
-                ["r", "range", "range.json"]
+                ["r", "range", "range.json"],
+                ["num", "number", "num.json"]
             ]
         },
         {
