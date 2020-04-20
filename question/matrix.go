@@ -88,7 +88,7 @@ var matrixTemplate = template.Must(template.New("matrixTemplate").Parse(`{{.Titl
 <tbody>
 {{range $i, $e := .Data }}
 <tr>
-<td><strong>{{$e.Question}}</strong></td>
+<td>{{$e.Question}}</td>
 {{range $I, $E := $.Answer }}
 <td class="centre" title="{{$e.Question}} - {{index $E 1}}"><input title="{{$e.Question}} - {{index $E 1}}" type="radio" name="{{$.GID}}_{{$e.QID}}" value="{{index $E 0}}" {{if $.Required}} required {{end}}></td>
 {{end}}
@@ -110,7 +110,7 @@ var matrixStatisticsTemplate = template.Must(template.New("matrixStatisticTempla
 </thead>
 {{range $i, $e := .Data }}
 <tr>
-<td><strong>{{$e.Question}}</strong></td>
+<td>{{$e.Question}}</td>
 {{range $I, $E := $e.Result }}
 <td>{{printf "%.2f" $E}}</td>
 {{end}}

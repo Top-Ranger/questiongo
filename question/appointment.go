@@ -292,7 +292,7 @@ var appointmentStatisticsTemplate = template.Must(template.New("appointmentStati
 <tr>
 <td style="white-space:nowrap;">{{if $e.Comment}}<abbr title="{{$e.Comment}}">{{end}}<strong>{{$e.Name}}</strong>{{if $e.Comment}}</abbr>{{end}}</td>
 {{range $I, $E := .Answers }}
-<td class="centre" {{if index $E 0}}bgcolor="{{index $E 0}}"{{end}}>{{index $E 1}}</td>
+<td class="centre" title="{{$e.Name}}" {{if index $E 0}}bgcolor="{{index $E 0}}"{{end}}>{{index $E 1}}</td>
 {{end}}
 </tr>
 {{end}}
