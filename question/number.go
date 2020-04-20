@@ -198,6 +198,11 @@ func (n numberQuestion) GetStatisticsHeader() []string {
 func (n numberQuestion) GetStatistics(data []string) [][]string {
 	result := make([][]string, len(data))
 	for i := range data {
+		if data[i] == "" {
+			result[i] = []string{""}
+			continue
+		}
+
 		value, err := strconv.Atoi(data[i])
 
 		if err != nil {
