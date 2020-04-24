@@ -35,7 +35,7 @@ func init() {
 }
 
 // FactorySingleChoice is the factory for single choice questions.
-func FactorySingleChoice(data []byte, id string) (registry.Question, error) {
+func FactorySingleChoice(data []byte, id string, language string) (registry.Question, error) {
 	var sc singleChoice
 	err := json.Unmarshal(data, &sc)
 	if err != nil {

@@ -33,10 +33,12 @@ import (
 	_ "github.com/Top-Ranger/questiongo/format"
 	_ "github.com/Top-Ranger/questiongo/question"
 	"github.com/Top-Ranger/questiongo/registry"
+	"github.com/Top-Ranger/questiongo/translation"
 )
 
 // Config represents the configuration of QuestionGo!
 type Config struct {
+	Language        string
 	Address         string
 	PathImpressum   string
 	FormatImpressum string
@@ -76,6 +78,12 @@ func main() {
 		panic(err)
 	}
 	config = c
+
+	err = translation.SetDefaultTranslation(config.Language)
+	if err != nil {
+		log.Panicf("main: Error setting default language '%s': %s", config.Language, err.Error())
+	}
+	log.Printf("main: Setting language to '%s'", config.Language)
 
 	datasafe, ok := registry.GetDataSafe(config.DataSafe)
 	if !ok {

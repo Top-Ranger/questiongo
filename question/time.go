@@ -37,7 +37,7 @@ func init() {
 }
 
 // FactoryTime is the factory for time questions.
-func FactoryTime(data []byte, id string) (registry.Question, error) {
+func FactoryTime(data []byte, id string, language string) (registry.Question, error) {
 	var t timeQuestion
 	err := json.Unmarshal(data, &t)
 	if err != nil {

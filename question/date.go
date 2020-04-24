@@ -37,7 +37,7 @@ func init() {
 }
 
 // FactoryDate is the factory for date questions.
-func FactoryDate(data []byte, id string) (registry.Question, error) {
+func FactoryDate(data []byte, id string, language string) (registry.Question, error) {
 	var d dateQuestion
 	err := json.Unmarshal(data, &d)
 	if err != nil {

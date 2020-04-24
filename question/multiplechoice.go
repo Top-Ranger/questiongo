@@ -36,7 +36,7 @@ func init() {
 }
 
 // FactoryMultipleChoice is the factory for multiple choice questions.
-func FactoryMultipleChoice(data []byte, id string) (registry.Question, error) {
+func FactoryMultipleChoice(data []byte, id string, language string) (registry.Question, error) {
 	var mc multipleChoice
 	err := json.Unmarshal(data, &mc)
 	if err != nil {

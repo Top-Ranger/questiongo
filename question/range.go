@@ -37,7 +37,7 @@ func init() {
 }
 
 // FactoryRange is the factory for range questions.
-func FactoryRange(data []byte, id string) (registry.Question, error) {
+func FactoryRange(data []byte, id string, language string) (registry.Question, error) {
 	var r rangeQuestion
 	err := json.Unmarshal(data, &r)
 	if err != nil {

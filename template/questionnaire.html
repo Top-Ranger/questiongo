@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="{{.Translation.Language}}">
 
 <head>
   <title>QuestionGo!</title>
@@ -46,12 +46,12 @@
     </div>
     {{end}}
     {{if $e.Last}}
-    <p>{{if $.AllowBack}}{{if not $e.First}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); var prev = document.getElementById('{{$e.PrevID}}'); prev.removeAttribute('hidden'); e.hidden = true; window.scrollTo(0,0);">&#x21A9; Previous page</button>&nbsp;{{end}}{{end}}<input type="submit" id="submitButton" value="Finish Questionnaire"></p>
+    <p>{{if $.AllowBack}}{{if not $e.First}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); var prev = document.getElementById('{{$e.PrevID}}'); prev.removeAttribute('hidden'); e.hidden = true; window.scrollTo(0,0);">&#x21A9; {{$.Translation.PreviousPage}}</button>&nbsp;{{end}}{{end}}<input type="submit" id="submitButton" value="{{$.Translation.FinishQuestionnaire}}"></p>
     {{else}}
-    <p>{{if $.AllowBack}}{{if not $e.First}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); var prev = document.getElementById('{{$e.PrevID}}'); prev.removeAttribute('hidden'); e.hidden = true; window.scrollTo(0,0);">&#x21A9; Previous page</button>&nbsp;{{end}}{{end}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); if(validateElements(e)){var next = document.getElementById('{{$e.NextID}}'); next.removeAttribute('hidden'); e.hidden = true; window.scrollTo(0,0);}else{return false;}">Next page &#x21AA;</button></p>
+    <p>{{if $.AllowBack}}{{if not $e.First}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); var prev = document.getElementById('{{$e.PrevID}}'); prev.removeAttribute('hidden'); e.hidden = true; window.scrollTo(0,0);">&#x21A9; {{$.Translation.PreviousPage}}</button>&nbsp;{{end}}{{end}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); if(validateElements(e)){var next = document.getElementById('{{$e.NextID}}'); next.removeAttribute('hidden'); e.hidden = true; window.scrollTo(0,0);}else{return false;}">{{$.Translation.NextPage}} &#x21AA;</button></p>
     {{end}}
     {{if $.ShowProgress}}
-    <progress value="{{$i}}" max="{{len $.Pages}}">questionnaire progress</progress>
+    <progress value="{{$i}}" max="{{len $.Pages}}">{{$.Translation.QuestionnaireProgress}}</progress>
     {{end}}
   </div>
   {{end}}
@@ -60,7 +60,7 @@
 
   <footer>
     <div>
-      Created by <a href="https://msoll.eu/" target="_blank"><u>Marcus Soll</u></a> - <a href="/impressum.html" target="_blank"><u>Impressum</u></a> - <a href="/dsgvo.html" target="_blank"><u>Datenschutzerklärung / Privacy Policy</u></a>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/" target="_blank"><u>Marcus Soll</u></a> - <a href="/impressum.html" target="_blank"><u>{{.Translation.Impressum}}</u></a> - <a href="/dsgvo.html" target="_blank"><u>{{.Translation.PrivacyPolicy}}</u></a>
     </div>
   </footer>
 </body>

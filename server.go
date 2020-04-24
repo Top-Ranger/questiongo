@@ -33,6 +33,7 @@ import (
 	auth "github.com/Top-Ranger/auth/data"
 	"github.com/Top-Ranger/questiongo/helper"
 	"github.com/Top-Ranger/questiongo/registry"
+	"github.com/Top-Ranger/questiongo/translation"
 )
 
 var serverMutex sync.Mutex
@@ -42,10 +43,10 @@ var server http.Server
 var textTemplate *template.Template
 var errorTemplate *template.Template
 var resultsTemplate *template.Template
+var resultsAccessTemplate *template.Template
 
 var dsgvo []byte
 var impressum []byte
-var resultsAccess []byte
 
 var questionnaires map[string]Questionnaire
 
@@ -80,7 +81,10 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	resultsAccess = b
+	resultsAccessTemplate, err = template.New("text").Parse(string(b))
+	if err != nil {
+		panic(err)
+	}
 
 	funcMap := template.FuncMap{
 		"even": func(i int) bool {
@@ -100,17 +104,24 @@ func init() {
 }
 
 type errorTemplateStruct struct {
-	Error template.HTML
+	Error       template.HTML
+	Translation translation.Translation
 }
 
 type textTemplateStruct struct {
-	Text template.HTML
+	Text        template.HTML
+	Translation translation.Translation
 }
 
 type resultsTemplateStruct struct {
-	Results []template.HTML
-	Key     string
-	Auth    string
+	Results     []template.HTML
+	Key         string
+	Auth        string
+	Translation translation.Translation
+}
+
+type resultsAccessTemplateStruct struct {
+	Translation translation.Translation
 }
 
 func initialiseServer() error {
@@ -129,7 +140,7 @@ func initialiseServer() error {
 	if !ok {
 		return fmt.Errorf("Unknown format type %s (DSGVO)", config.FormatDSGVO)
 	}
-	text := textTemplateStruct{f.Format(b)}
+	text := textTemplateStruct{f.Format(b), translation.GetDefaultTranslation()}
 	output := bytes.NewBuffer(make([]byte, 0, len(text.Text)*2))
 	textTemplate.Execute(output, text)
 	dsgvo = output.Bytes()
@@ -147,7 +158,7 @@ func initialiseServer() error {
 	if !ok {
 		return fmt.Errorf("Unknown format type %s (impressum)", config.FormatImpressum)
 	}
-	text = textTemplateStruct{f.Format(b)}
+	text = textTemplateStruct{f.Format(b), translation.GetDefaultTranslation()}
 	text.Text = template.HTML(strings.Join([]string{string(text.Text), "<p><img style=\"max-width: 500px\" src=\"/static/Logo.svg\" alt=\"Logo\"></p>"}, ""))
 	output = bytes.NewBuffer(make([]byte, 0, len(text.Text)*2))
 	textTemplate.Execute(output, text)
@@ -246,7 +257,7 @@ func initialiseServer() error {
 
 func questionnaireHandle(rw http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
-		t := errorTemplateStruct{"<h1>QuestionGo!</h1>"}
+		t := errorTemplateStruct{"<h1>QuestionGo!</h1>", translation.GetDefaultTranslation()}
 		errorTemplate.Execute(rw, t)
 		return
 	}
@@ -256,13 +267,20 @@ func questionnaireHandle(rw http.ResponseWriter, r *http.Request) {
 	q, ok := questionnaires[key]
 	if !ok {
 		rw.WriteHeader(http.StatusNotFound)
-		t := errorTemplateStruct{"<h1>Can not find Questionnaire</h1>"}
+		translationStruct := translation.GetDefaultTranslation()
+		t := errorTemplateStruct{template.HTML(fmt.Sprintf("<h1>%s</h1>", translationStruct.CanNotFindQuestionnaire)), translationStruct}
 		errorTemplate.Execute(rw, t)
 		return
 	}
 
 	if !q.Open {
-		t := errorTemplateStruct{helper.SanitiseString(fmt.Sprintf("Questionnaire is closed - please contact the creator (%s) for more information", q.Contact))}
+		translationStruct, err := translation.GetTranslation(q.Language)
+		if err != nil {
+			log.Printf("server: error while getting translation (%s) for questionnaire %s: %s", q.Language, key, err.Error())
+			translationStruct = translation.GetDefaultTranslation()
+		}
+
+		t := errorTemplateStruct{helper.SanitiseString(fmt.Sprintf(translationStruct.QuestionnaireClosed, q.Contact)), translationStruct}
 		errorTemplate.Execute(rw, t)
 		return
 	}
@@ -291,7 +309,8 @@ func answerHandle(rw http.ResponseWriter, r *http.Request) {
 	q, ok := questionnaires[id]
 	if !ok {
 		rw.WriteHeader(http.StatusNotFound)
-		t := errorTemplateStruct{"<h1>Can not find Questionnaire</h1>"}
+		translationStruct := translation.GetDefaultTranslation()
+		t := errorTemplateStruct{template.HTML(fmt.Sprintf("<h1>%s</h1>", translationStruct.CanNotFindQuestionnaire)), translationStruct}
 		errorTemplate.Execute(rw, t)
 		return
 	}
@@ -301,7 +320,12 @@ func answerHandle(rw http.ResponseWriter, r *http.Request) {
 		if validationError {
 			log.Printf("server: received bad request (%s)", err.Error())
 			rw.WriteHeader(http.StatusBadRequest)
-			textTemplate.Execute(rw, textTemplateStruct{"<p>An error occured with your request. Please try again.</p><p>If the problem persists, please <a href=\"/impressum.html\">contact us</a>.</p>"})
+			translationStruct, err := translation.GetTranslation(q.Language)
+			if err != nil {
+				log.Printf("server: error while getting translation (%s) for questionnaire %s: %s", q.Language, id, err.Error())
+				translationStruct = translation.GetDefaultTranslation()
+			}
+			textTemplate.Execute(rw, textTemplateStruct{template.HTML(translationStruct.ErrorAnswer), translationStruct})
 			return
 		}
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -312,6 +336,7 @@ func answerHandle(rw http.ResponseWriter, r *http.Request) {
 }
 
 func resultsHandle(rw http.ResponseWriter, r *http.Request) {
+	translationStruct := translation.GetDefaultTranslation()
 	if r.Method == http.MethodPost {
 		err := r.ParseForm()
 		if err != nil {
@@ -319,17 +344,20 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 			rw.Write([]byte(err.Error()))
 			return
 		}
+
 		key := r.Form.Get("key")
 		pw := r.Form.Get("pw")
 
 		q, ok := questionnaires[key]
 		if !ok {
-			rw.Write(resultsAccess)
+			rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+			resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct})
 			return
 		}
 
 		if !q.VerifyPassword(pw) {
-			rw.Write(resultsAccess)
+			rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+			resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct})
 			return
 		}
 
@@ -348,9 +376,10 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 		}
 
 		td := resultsTemplateStruct{
-			Results: results,
-			Key:     key,
-			Auth:    a,
+			Results:     results,
+			Key:         key,
+			Auth:        a,
+			Translation: translationStruct,
 		}
 
 		rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -359,7 +388,7 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	rw.Write(resultsAccess)
+	resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct})
 }
 
 func zipHandle(rw http.ResponseWriter, r *http.Request) {
@@ -380,7 +409,8 @@ func zipHandle(rw http.ResponseWriter, r *http.Request) {
 
 	q, ok := questionnaires[key]
 	if !ok {
-		rw.Write(resultsAccess)
+		rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation()})
 		return
 	}
 
@@ -410,7 +440,8 @@ func csvHandle(rw http.ResponseWriter, r *http.Request) {
 
 	q, ok := questionnaires[key]
 	if !ok {
-		rw.Write(resultsAccess)
+		rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation()})
 		return
 	}
 

@@ -32,7 +32,7 @@ func init() {
 }
 
 // FactoryDisplay is the factory for displays pseudo-question.
-func FactoryDisplay(data []byte, id string) (registry.Question, error) {
+func FactoryDisplay(data []byte, id string, language string) (registry.Question, error) {
 	var d display
 	err := json.Unmarshal(data, &d)
 	if err != nil {

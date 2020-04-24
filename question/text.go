@@ -33,7 +33,7 @@ func init() {
 }
 
 // FactoryText is the factory for text questions.
-func FactoryText(data []byte, id string) (registry.Question, error) {
+func FactoryText(data []byte, id string, language string) (registry.Question, error) {
 	var t text
 	err := json.Unmarshal(data, &t)
 	if err != nil {

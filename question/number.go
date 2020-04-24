@@ -37,7 +37,7 @@ func init() {
 }
 
 // FactoryNumber is the factory for number questions.
-func FactoryNumber(data []byte, id string) (registry.Question, error) {
+func FactoryNumber(data []byte, id string, language string) (registry.Question, error) {
 	var n numberQuestion
 	err := json.Unmarshal(data, &n)
 	if err != nil {

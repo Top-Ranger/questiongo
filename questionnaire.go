@@ -36,6 +36,7 @@ import (
 	"sync"
 
 	"github.com/Top-Ranger/questiongo/registry"
+	"github.com/Top-Ranger/questiongo/translation"
 )
 
 // ErrValidation represents an error related to validating answer input
@@ -103,6 +104,7 @@ type QuestionnairePage struct {
 type Questionnaire struct {
 	Password         string
 	Open             bool
+	Language         string
 	Start            string
 	StartFormat      string
 	End              string
@@ -135,12 +137,14 @@ type questionnaireTemplateStruct struct {
 	ShowProgress bool
 	AllowBack    bool
 	ID           string
+	Translation  translation.Translation
 }
 
 type questionnaireStartTemplateStruct struct {
-	Text    template.HTML
-	Key     string
-	Contact string
+	Text        template.HTML
+	Key         string
+	Contact     string
+	Translation translation.Translation
 }
 
 // GetStart returns the questionnaire start page.
@@ -161,6 +165,7 @@ func (q Questionnaire) WriteQuestions(w io.Writer) {
 		ID:           q.id,
 		ShowProgress: q.ShowProgress,
 		AllowBack:    q.AllowBack,
+		Translation:  translation.GetDefaultTranslation(),
 	}
 	for p := range q.Pages {
 		questionData := make([]template.HTML, len(q.Pages[p].questions))
@@ -305,8 +310,9 @@ func (q Questionnaire) WriteCSV(w io.Writer) error {
 				// This should not happen
 				// Let's still catch this by filling it with empty data
 				showError.Do(func() {
-					log.Printf("csv export (%s): Not all questions have the same number of results (only reported once for each export)", q.id)
-					errorList = append(errorList, "Not all questions have the same number of results data. Results might be inconsistent (only reported once for each export)")
+					t := translation.GetDefaultTranslation()
+					log.Printf("csv export (%s): %s", q.id, t.ErrorAnswersDifferentAmount)
+					errorList = append(errorList, t.ErrorAnswersDifferentAmount)
 				})
 				write = append(write, make([]string, len(q.allQuestions[i].GetStatisticsHeader()))...)
 			}
@@ -317,7 +323,10 @@ func (q Questionnaire) WriteCSV(w io.Writer) error {
 	csv.Flush()
 
 	for i := range errorList {
-		w.Write([]byte("\n#An error occured: "))
+		t := translation.GetDefaultTranslation()
+		w.Write([]byte("\n#"))
+		w.Write([]byte(t.AnErrorOccured))
+		w.Write([]byte(": "))
 		w.Write([]byte(errorList[i]))
 	}
 
@@ -408,6 +417,11 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 		return Questionnaire{}, err
 	}
 
+	translationStruct, err := translation.GetTranslation(q.Language)
+	if err != nil {
+		return Questionnaire{}, fmt.Errorf("Can not get translation for language '%s'", q.Language)
+	}
+
 	// Load Questions
 	testID := make(map[string]bool)
 	q.allQuestions = make([]registry.Question, 0)
@@ -434,7 +448,7 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 			if !ok {
 				return Questionnaire{}, fmt.Errorf("Unknown question type %s (%s)", q.Pages[p].Questions[i][1], file)
 			}
-			newQuestion, err := factory(b, q.Pages[p].Questions[i][0])
+			newQuestion, err := factory(b, q.Pages[p].Questions[i][0], q.Language)
 			if err != nil {
 				return Questionnaire{}, fmt.Errorf("Can not create question %d-%d: %w (%s)", p, i, err, file)
 			}
@@ -454,9 +468,10 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 		return Questionnaire{}, fmt.Errorf("Can not format start: Unknown type %s (%s)", q.StartFormat, file)
 	}
 	td := questionnaireStartTemplateStruct{
-		Text:    f.Format(b),
-		Key:     key,
-		Contact: q.Contact,
+		Text:        f.Format(b),
+		Key:         key,
+		Contact:     q.Contact,
+		Translation: translationStruct,
 	}
 	output := bytes.NewBuffer(make([]byte, 0, len(td.Text)+len(td.Contact)+5000))
 	questionnaireStartTemplate.Execute(output, td)
@@ -471,7 +486,7 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 	if !ok {
 		return Questionnaire{}, fmt.Errorf("Can not format end: Unknown type %s (%s)", q.StartFormat, file)
 	}
-	text := textTemplateStruct{f.Format(b)}
+	text := textTemplateStruct{f.Format(b), translation.GetDefaultTranslation()}
 	output = bytes.NewBuffer(make([]byte, 0, len(text.Text)*2))
 	textTemplate.Execute(output, text)
 	q.endCache = output.Bytes()

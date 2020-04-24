@@ -1,6 +1,7 @@
 {
     "Password": "test",
     "Open": true,
+    "Language": "",
     "Start": "start.md",
     "StartFormat": "markdown",
     "End": "end.md",

@@ -33,7 +33,7 @@ func (a AlreadyRegisteredError) Error() string {
 
 // QuestionFactory represents a function to generate a new Question object from the input.
 // The input can be question specific.
-type QuestionFactory func(data []byte, id string) (Question, error)
+type QuestionFactory func(data []byte, id string, language string) (Question, error)
 
 // Question represents a single question.
 // The results of a question is collected through a normal HTML form, so all questions must provide their results appropriately.

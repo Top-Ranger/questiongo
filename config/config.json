@@ -1,10 +1,11 @@
  {
-     "Address": "localhost:22223",
-     "PathImpressum": "config/impressum.md",
-     "FormatImpressum": "markdown",
-     "PathDSGVO": "config/DSGVO.md",
-     "FormatDSGVO": "markdown",
-     "DataFolder": "data",
-     "DataSafe": "fileappend",
-     "DataSafeConfig": "config/datasafe-fileappend"
+    "Language": "en",
+    "Address": "localhost:22223",
+    "PathImpressum": "config/impressum.md",
+    "FormatImpressum": "markdown",
+    "PathDSGVO": "config/DSGVO.md",
+    "FormatDSGVO": "markdown",
+    "DataFolder": "data",
+    "DataSafe": "fileappend",
+    "DataSafeConfig": "config/datasafe-fileappend"
  }

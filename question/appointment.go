@@ -28,11 +28,12 @@ import (
 	"time"
 
 	"github.com/Top-Ranger/questiongo/registry"
+	"github.com/Top-Ranger/questiongo/translation"
 )
 
 var appointmentDateFormatRead = "2006-01-02"
-var appointmentDateFormatWrite = "Monday, 02.01.2006 15:04"
-var appointmentDateFormatWriteNoTime = "Monday, 02.01.2006"
+var appointmentDateFormatWrite = "02.01.2006 15:04"
+var appointmentDateFormatWriteNoTime = "02.01.2006"
 var appointmentDateFormatID = "02.01.2006T15:04"
 var appointmentDateFormatIDNoTime = "02.01.2006"
 
@@ -64,7 +65,7 @@ func (a appointmentSort) Swap(i, j int) {
 }
 
 // FactoryAppointment is the factory for appointment questions.
-func FactoryAppointment(data []byte, id string) (registry.Question, error) {
+func FactoryAppointment(data []byte, id string, language string) (registry.Question, error) {
 	var a appointment
 	err := json.Unmarshal(data, &a)
 	if err != nil {
@@ -75,6 +76,11 @@ func FactoryAppointment(data []byte, id string) (registry.Question, error) {
 	_, ok := registry.GetFormatType(a.Format)
 	if !ok {
 		return nil, fmt.Errorf("appointment: Unknown format type %s (%s)", a.Format, id)
+	}
+
+	a.Translation, err = translation.GetTranslation(language)
+	if err != nil {
+		return nil, fmt.Errorf("appointment: Can not get translation for language '%s' (%s)", language, id)
 	}
 
 	fd, err := time.Parse(appointmentDateFormatRead, a.FirstDate)
@@ -245,10 +251,10 @@ var appointmentTemplate = template.Must(template.New("appointmentTemplate").Pars
 <thead>
 <tr>
 <th></th>
-<th>✓ (yes)</th>
-<th>👎 (only if needed)</th>
-<th>X (no)</th>
-<th>? (can not say)</th>
+<th>✓ ({{.Translation.AppointmentYes}})</th>
+<th>👎 ({{.Translation.AppointmentNo}})</th>
+<th>X ({{.Translation.AppointmentOnlyIfNeeded}})</th>
+<th>? ({{.Translation.AppointmentCanNotSay}})</th>
 </tr>
 </thead>
 <tr>
@@ -313,6 +319,7 @@ type appointmentTemplateStruct struct {
 	Text         template.HTML
 	NameRequired bool
 	Data         []appointmentDate
+	Translation  translation.Translation
 }
 
 type appointmentStatisticsTemplateStruct struct {
@@ -348,8 +355,9 @@ type appointment struct {
 	Time                []string
 	ExceptDays          []string
 
-	id    string
-	dates []appointmentDate
+	id          string
+	dates       []appointmentDate
+	Translation translation.Translation
 }
 
 func (a appointment) GetID() string {
@@ -364,6 +372,7 @@ func (a appointment) GetHTML() template.HTML {
 		Text:         f.Format([]byte(a.Text)),
 		NameRequired: a.NameRequired,
 		Data:         make([]appointmentDate, len(a.dates)),
+		Translation:  a.Translation,
 	}
 
 	now := time.Now()

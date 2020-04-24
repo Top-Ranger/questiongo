@@ -36,7 +36,7 @@ func init() {
 }
 
 // FactoryMatrix is the factory for matrix questions.
-func FactoryMatrix(data []byte, id string) (registry.Question, error) {
+func FactoryMatrix(data []byte, id string, language string) (registry.Question, error) {
 	var m matrix
 	err := json.Unmarshal(data, &m)
 	if err != nil {

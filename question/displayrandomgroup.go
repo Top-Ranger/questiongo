@@ -35,7 +35,7 @@ func init() {
 }
 
 // FactoryDisplayRandomGroup is the factory for random group seperation by showing different displays.
-func FactoryDisplayRandomGroup(data []byte, id string) (registry.Question, error) {
+func FactoryDisplayRandomGroup(data []byte, id string, language string) (registry.Question, error) {
 	var drg displayRandomGroup
 	err := json.Unmarshal(data, &drg)
 	if err != nil {
