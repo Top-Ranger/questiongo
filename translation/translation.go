@@ -105,7 +105,11 @@ func SetDefaultTranslation(language string) error {
 // GetDefaultTranslation returns a Translation struct of the current default language.
 func GetDefaultTranslation() Translation {
 	initialiseCurrent.Do(func() {
-		if current != "" {
+		rwlock.RLock()
+		c := current
+		rwlock.RUnlock()
+
+		if c == "" {
 			err := SetDefaultTranslation(defaultLanguage)
 			if err != nil {
 				log.Printf("Can not load default language (%s): %s", defaultLanguage, err.Error())
