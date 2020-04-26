@@ -187,13 +187,13 @@ func FactoryAppointment(data []byte, id string, language string) (registry.Quest
 					// Special value "notime"
 					a.dates = append(a.dates, appointmentDate{
 						ID:      fmt.Sprintf("%s_%s_notime", id, newTime.Format(appointmentDateFormatIDNoTime)),
-						Display: newTime.Format(appointmentDateFormatWriteNoTime),
+						Display: a.formatTimeDisplay(newTime, appointmentDateFormatWriteNoTime),
 						time:    newTime,
 					})
 				} else {
 					a.dates = append(a.dates, appointmentDate{
 						ID:      fmt.Sprintf("%s_%s", id, newTime.Format(appointmentDateFormatID)),
-						Display: newTime.Format(appointmentDateFormatWrite),
+						Display: a.formatTimeDisplay(newTime, appointmentDateFormatWrite),
 						time:    newTime,
 					})
 				}
@@ -298,14 +298,14 @@ var appointmentStatisticsTemplate = template.Must(template.New("appointmentStati
 <tr>
 <td style="white-space:nowrap;">{{if $e.Comment}}<abbr title="{{$e.Comment}}">{{end}}<strong>{{$e.Name}}</strong>{{if $e.Comment}}</abbr>{{end}}</td>
 {{range $I, $E := .Answers }}
-<td class="centre" title="{{$e.Name}}" {{if index $E 0}}bgcolor="{{index $E 0}}"{{end}}>{{index $E 1}}</td>
+<td class="centre" title="{{$e.Name}} - {{index $.Dates $i}}" {{if index $E 0}}bgcolor="{{index $E 0}}"{{end}}>{{index $E 1}}</td>
 {{end}}
 </tr>
 {{end}}
 <tr>
 <td class="th-cell" style="white-space:nowrap;"><strong>Points</strong></td>
 {{range $i, $e := .Points }}
-<td class="centre{{if eq $i $.BestNumber}} th-cell{{end}}">{{printf "%.2f" $e}}</td>
+<td class="centre{{if eq $i $.BestNumber}} th-cell{{end}}" title="{{index $.Dates $i}} - {{printf "%.2f" $e}}">{{printf "%.2f" $e}}</td>
 {{end}}
 </tr>
 </tbody>
@@ -358,6 +358,27 @@ type appointment struct {
 	id          string
 	dates       []appointmentDate
 	Translation translation.Translation
+}
+
+func (a appointment) formatTimeDisplay(t time.Time, format string) string {
+	var weekday string
+	switch t.Weekday() {
+	case time.Monday:
+		weekday = a.Translation.WeekdayMonday
+	case time.Tuesday:
+		weekday = a.Translation.WeekdayTuesday
+	case time.Wednesday:
+		weekday = a.Translation.WeekdayWednesday
+	case time.Thursday:
+		weekday = a.Translation.WeekdayThursday
+	case time.Friday:
+		weekday = a.Translation.WeekdayFriday
+	case time.Saturday:
+		weekday = a.Translation.WeekdaySaturday
+	case time.Sunday:
+		weekday = a.Translation.WeekdaySunday
+	}
+	return fmt.Sprintf("%s, %s", weekday, t.Format(format))
 }
 
 func (a appointment) GetID() string {

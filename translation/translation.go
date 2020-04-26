@@ -36,6 +36,13 @@ type Translation struct {
 	AppointmentNo               string
 	AppointmentOnlyIfNeeded     string
 	AppointmentCanNotSay        string
+	WeekdayMonday               string
+	WeekdayTuesday              string
+	WeekdayWednesday            string
+	WeekdayThursday             string
+	WeekdayFriday               string
+	WeekdaySaturday             string
+	WeekdaySunday               string
 }
 
 const defaultLanguage = "en"

@@ -21,5 +21,12 @@
     "AppointmentYes": "yes",
     "AppointmentNo": "no",
     "AppointmentOnlyIfNeeded": "only if needed",
-    "AppointmentCanNotSay": "can not say"
+    "AppointmentCanNotSay": "can not say",
+    "WeekdayMonday": "Monday",
+    "WeekdayTuesday": "Tuesday",
+    "WeekdayWednesday": "Wednesday",
+    "WeekdayThursday": "Thursday",
+    "WeekdayFriday": "Friday",
+    "WeekdaySaturday": "Saturday",
+    "WeekdaySunday": "Sunday"
 }
