@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 )
@@ -47,11 +48,24 @@ type Translation struct {
 
 const defaultLanguage = "en"
 
-var initialiseCurrent sync.Once
+var fixedDefaultTranslation Translation
+
 var current string
 var languageMap = make(map[string]Translation)
 var rwlock sync.RWMutex
 var translationPath = "./translation"
+
+func init() {
+	err := SetDefaultTranslation(defaultLanguage)
+	if err != nil {
+		log.Printf("Can not load default language (%s): %s", defaultLanguage, err.Error())
+	}
+
+	fixedDefaultTranslation = GetDefaultTranslation()
+	if err != nil {
+		panic(err)
+	}
+}
 
 // GetTranslation returns a Translation struct of the given language.
 func GetTranslation(language string) (Translation, error) {
@@ -86,6 +100,24 @@ func GetTranslation(language string) (Translation, error) {
 	if err != nil {
 		return Translation{}, err
 	}
+
+	// Set unknown strings to default value
+	vp := reflect.ValueOf(&t)
+	dv := reflect.ValueOf(fixedDefaultTranslation)
+	v := vp.Elem()
+
+	for i := 0; i < v.NumField(); i++ {
+		if !v.Field(i).CanSet() {
+			continue
+		}
+		if v.Field(i).Kind() != reflect.String {
+			continue
+		}
+		if v.Field(i).String() == "" {
+			v.Field(i).SetString(dv.Field(i).String())
+		}
+	}
+
 	languageMap[language] = t
 	return t, nil
 }
@@ -111,18 +143,6 @@ func SetDefaultTranslation(language string) error {
 
 // GetDefaultTranslation returns a Translation struct of the current default language.
 func GetDefaultTranslation() Translation {
-	initialiseCurrent.Do(func() {
-		rwlock.RLock()
-		c := current
-		rwlock.RUnlock()
-
-		if c == "" {
-			err := SetDefaultTranslation(defaultLanguage)
-			if err != nil {
-				log.Printf("Can not load default language (%s): %s", defaultLanguage, err.Error())
-			}
-		}
-	})
 	rwlock.RLock()
 	defer rwlock.RUnlock()
 	return languageMap[current]
