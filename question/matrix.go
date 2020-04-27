@@ -90,7 +90,7 @@ var matrixTemplate = template.Must(template.New("matrixTemplate").Parse(`{{.Titl
 <tr>
 <td>{{$e.Question}}</td>
 {{range $I, $E := $.Answer }}
-<td class="centre" title="{{$e.Question}} - {{index $E 1}}"><input title="{{$e.Question}} - {{index $E 1}}" type="radio" name="{{$.GID}}_{{$e.QID}}" value="{{index $E 0}}" {{if $.Required}} required {{end}}></td>
+<td class="centre" title="{{$e.Question}} - {{index $E 1}}" onclick="document.getElementById('{{$.GID}}_{{$e.QID}}_{{index $E 0}}').checked=true;"><input title="{{$e.Question}} - {{index $E 1}}" type="radio" id="{{$.GID}}_{{$e.QID}}_{{index $E 0}}" name="{{$.GID}}_{{$e.QID}}" value="{{index $E 0}}" {{if $.Required}} required {{end}}></td>
 {{end}}
 </tr>
 {{end}}
