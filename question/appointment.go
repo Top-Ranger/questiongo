@@ -246,7 +246,7 @@ func appointmentPoints(answer string) float64 {
 }
 
 var appointmentTemplate = template.Must(template.New("appointmentTemplate").Parse(`{{.Text}}<br>
-<p><label for="{{.ID}}_name">Name {{if .NameRequired}}<em>(required)</em>{{else}}<em>(optional)</em>{{end}}:</label> <input type="text" id="{{.ID}}_name" name="{{.ID}}_name" placeholder="Name" maxlength="150" {{if .NameRequired}}required{{end}}></p>
+<p><label for="{{.ID}}_name">{{.Translation.AppointmentName}} {{if .NameRequired}}<em>({{.Translation.AppointmentRequired}})</em>{{else}}<em>({{.Translation.AppointmentOptional}})</em>{{end}}:</label> <input type="text" id="{{.ID}}_name" name="{{.ID}}_name" placeholder="{{.Translation.AppointmentName}}" maxlength="150" {{if .NameRequired}}required{{end}}></p>
 <table>
 <thead>
 <tr>
@@ -276,7 +276,7 @@ var appointmentTemplate = template.Must(template.New("appointmentTemplate").Pars
 {{end}}
 </tbody>
 </table>
-<p><label for="{{.ID}}_comment">Comment <em>(optional)</em>:</label> <input type="text" id="{{.ID}}_comment" name="{{.ID}}_comment" placeholder="Comment" maxlength="500"></p>
+<p><label for="{{.ID}}_comment">{{.Translation.AppointmentComment}} <em>({{.Translation.AppointmentOptional}})</em>:</label> <input type="text" id="{{.ID}}_comment" name="{{.ID}}_comment" placeholder="{{.Translation.AppointmentComment}}" maxlength="500"></p>
 `))
 
 var appointmentStatisticsTemplate = template.Must(template.New("appointmentStatisticsTemplate").Parse(`{{.Text}}
