@@ -252,8 +252,8 @@ var appointmentTemplate = template.Must(template.New("appointmentTemplate").Pars
 <tr>
 <th></th>
 <th>✓ ({{.Translation.AppointmentYes}})</th>
-<th>👎 ({{.Translation.AppointmentNo}})</th>
-<th>X ({{.Translation.AppointmentOnlyIfNeeded}})</th>
+<th>👎 ({{.Translation.AppointmentOnlyIfNeeded}})</th>
+<th>X ({{.Translation.AppointmentNo}})</th>
 <th>? ({{.Translation.AppointmentCanNotSay}})</th>
 </tr>
 </thead>
