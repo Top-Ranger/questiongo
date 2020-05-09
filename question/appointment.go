@@ -259,10 +259,10 @@ var appointmentTemplate = template.Must(template.New("appointmentTemplate").Pars
 </thead>
 <tr>
 <td></td>
-<td class="centre" bgcolor="#5EFF5E"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='✓'){l[i].checked=true}}">all ✓</button></td>
-<td class="centre" bgcolor="#FFE75E"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='👎'){l[i].checked=true}}">all 👎</button></td>
-<td class="centre" bgcolor="#FF5E66"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='X'){l[i].checked=true}}">all X</button></td>
-<td class="centre" bgcolor="#DBD9E2"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='?'){l[i].checked=true}}">all ?</button></td>
+<td class="centre" bgcolor="#5EFF5E"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='✓'&&!l[i].disabled){l[i].checked=true}}">all ✓</button></td>
+<td class="centre" bgcolor="#FFE75E"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='👎'&&!l[i].disabled){l[i].checked=true}}">all 👎</button></td>
+<td class="centre" bgcolor="#FF5E66"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='X'&&!l[i].disabled){l[i].checked=true}}">all X</button></td>
+<td class="centre" bgcolor="#DBD9E2"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='?'&&!l[i].disabled){l[i].checked=true}}">all ?</button></td>
 </tr>
 <tbody id="{{.ID}}_tbody">
 {{range $i, $e := .Data }}
