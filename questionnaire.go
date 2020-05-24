@@ -20,7 +20,6 @@ import (
 	"archive/zip"
 	"bytes"
 	crand "crypto/rand"
-	"crypto/sha512"
 	"crypto/subtle"
 	"encoding/csv"
 	"encoding/json"
@@ -37,25 +36,24 @@ import (
 
 	"github.com/Top-Ranger/questiongo/registry"
 	"github.com/Top-Ranger/questiongo/translation"
+	"golang.org/x/crypto/argon2"
 )
 
 // ErrValidation represents an error related to validating answer input
 type ErrValidation error
+
+const hashLength = 33
 
 var questionnaireTemplate *template.Template
 var questionnaireStartTemplate *template.Template
 var hashSalt []byte
 
 var questionnairePasswordHash = func(s string) []byte {
-	sum := sha512.New()
-	sum.Write(hashSalt)
-	sum.Write([]byte(s))
-	hash := sum.Sum(nil)
-	return hash[:]
+	return argon2.IDKey([]byte(s), hashSalt, 1, 64*1024, 2, hashLength)
 }
 
 func init() {
-	hashSalt = make([]byte, sha512.Size)
+	hashSalt = make([]byte, hashLength)
 	_, err := crand.Read(hashSalt)
 	if err != nil {
 		panic(err)
