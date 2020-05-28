@@ -40,6 +40,9 @@
   <form id="questionnaire" action="/answer.html?id={{.ID}}" method="POST" autocomplete="off">
   {{range $i, $e := .Pages }}
   <div id="{{$e.ID}}" {{if not $e.First}}hidden{{end}}>
+    {{if $.ShowProgress}}
+    <p><progress value="{{$i}}" max="{{len $.Pages}}">{{$.Translation.QuestionnaireProgress}}</progress></p>
+    {{end}}
     {{range $I, $E := $e.QuestionData }}
     <div {{if even $I}}class="even" {{else}}class="odd"{{end}}>
       {{$E}}
@@ -51,7 +54,7 @@
     <p>{{if $.AllowBack}}{{if not $e.First}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); var prev = document.getElementById('{{$e.PrevID}}'); prev.removeAttribute('hidden'); e.hidden = true; window.scrollTo(0,0);">&#x21A9; {{$.Translation.PreviousPage}}</button>&nbsp;{{end}}{{end}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); if(validateElements(e)){var next = document.getElementById('{{$e.NextID}}'); next.removeAttribute('hidden'); e.hidden = true; window.scrollTo(0,0);}else{return false;}">{{$.Translation.NextPage}} &#x21AA;</button></p>
     {{end}}
     {{if $.ShowProgress}}
-    <progress value="{{$i}}" max="{{len $.Pages}}">{{$.Translation.QuestionnaireProgress}}</progress>
+    <p><progress value="{{$i}}" max="{{len $.Pages}}">{{$.Translation.QuestionnaireProgress}}</progress></p>
     {{end}}
   </div>
   {{end}}
