@@ -143,7 +143,10 @@ func (t text) GetStatisticsDisplay(data []string) template.HTML {
 }
 
 func (t text) ValidateInput(data map[string][]string) error {
-	if t.Required && len(data[t.id]) == 0 {
+	if !t.Required {
+		return nil
+	}
+	if len(data[t.id]) == 0 {
 		return fmt.Errorf("text: Required, but no input found")
 	}
 	if len(data[t.id][0]) == 0 {
