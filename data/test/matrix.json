@@ -9,7 +9,7 @@
         ["3", "Bad"]
     ],
     "Questions": [
-        ["question1", "How is the weather?"],
-        ["question2", "How do you feel?"]
+        ["question1", "<abbr title=\"sunny or rainy?\">How is the weather?</abbr>"],
+        ["question2", "<abbr title=\"I hope you do feel good?\">How do you feel?</abbr>"]
     ]
 }
