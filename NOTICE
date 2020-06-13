@@ -32,4 +32,6 @@ Bundeled libraries
 ++++++++++++++++++++++++++++++++++++++++++++
 QuestionGo! is bundeled with Chart.js v2.9.3 (https://www.chartjs.org), which is licenced under the MIT License.
 QuestionGo! is bundeled with moment.js 2.24.0 (https://momentjs.com/), which is licenced under the MIT License.
+QuestionGo! is bundeled with abbr-touch.js (https://github.com/Tyriar/abbr-touch), which is licenced under the MIT License.
+QuestionGo! is bundeled with touchtap-event.js (https://github.com/Tyriar/touchtap-event), which is licenced under the MIT License.
 QuestionGo! is bundeled with the Oxygen font, which is licenced under the SIL Open Font License, Version 1.1.
