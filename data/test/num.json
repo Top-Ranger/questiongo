@@ -8,7 +8,7 @@
     "HasStep": true,
     "Step": 5,
     "IgoreRecordIfLargerThan": true,
-	"IgoreRecordUpperBound": 50,
-	"IgoreRecordIfLowerThan": false,
-	"IgoreRecordLowerBound": 0
+    "IgoreRecordUpperBound": 50,
+    "IgoreRecordIfLowerThan": false,
+    "IgoreRecordLowerBound": 0
 }
