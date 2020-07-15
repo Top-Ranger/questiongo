@@ -153,14 +153,18 @@ func (n numberStatisticTemplateStructInnerSort) Swap(i, j int) {
 }
 
 type numberQuestion struct {
-	Format    string
-	Question  string
-	Required  bool
-	HasMinMax bool
-	Min       int
-	Max       int
-	HasStep   bool
-	Step      int
+	Format                  string
+	Question                string
+	Required                bool
+	HasMinMax               bool
+	Min                     int
+	Max                     int
+	HasStep                 bool
+	Step                    int
+	IgoreRecordIfLargerThan bool
+	IgoreRecordUpperBound   int
+	IgoreRecordIfLowerThan  bool
+	IgoreRecordLowerBound   int
 
 	id string
 }
@@ -302,6 +306,25 @@ func (n numberQuestion) ValidateInput(data map[string][]string) error {
 }
 
 func (n numberQuestion) IgnoreRecord(data map[string][]string) bool {
+	if len(data[n.id]) == 0 || data[n.id][0] == "" {
+		if n.Required {
+			return true
+		}
+		return false
+	}
+	value, err := strconv.Atoi(data[n.id][0])
+	if err != nil {
+		return true
+	}
+
+	if n.IgoreRecordIfLargerThan && value > n.IgoreRecordUpperBound {
+		return true
+	}
+
+	if n.IgoreRecordIfLowerThan && value < n.IgoreRecordLowerBound {
+		return true
+	}
+
 	return false
 }
 

@@ -6,5 +6,9 @@
     "Min": 0,
     "Max": 100,
     "HasStep": true,
-    "Step": 5
+    "Step": 5,
+    "IgoreRecordIfLargerThan": true,
+	"IgoreRecordUpperBound": 50,
+	"IgoreRecordIfLowerThan": false,
+	"IgoreRecordLowerBound": 0
 }
