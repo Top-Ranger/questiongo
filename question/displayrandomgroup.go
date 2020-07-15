@@ -196,6 +196,10 @@ func (drg displayRandomGroup) ValidateInput(data map[string][]string) error {
 	return fmt.Errorf("display random group: Unknown group '%s'", r[0])
 }
 
+func (drg displayRandomGroup) IgnoreRecord(data map[string][]string) bool {
+	return false
+}
+
 func (drg displayRandomGroup) GetDatabaseEntry(data map[string][]string) string {
 	r, ok := data[drg.id]
 	if !ok || len(r) == 0 {

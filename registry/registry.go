@@ -66,6 +66,11 @@ type Question interface {
 	// The method must return error == nil if the input is valid.
 	ValidateInput(data map[string][]string) error
 
+	// IgnoreRecord determines whether the whole record (meaning all questions of that response) should be ignored without giving feedback to participants.
+	// This can be used to enforce e.g. age restrictions and similar without letting the participant know it.
+	// For most questions, just returning false might be enough.
+	IgnoreRecord(data map[string][]string) bool
+
 	// GetDatabaseEntry returns a string representation of the results of the question.
 	// The data map returns the values of the POST request of the client, filtered by questions.
 	GetDatabaseEntry(data map[string][]string) string

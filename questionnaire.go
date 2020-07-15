@@ -374,6 +374,18 @@ func (q Questionnaire) SaveData(r *http.Request) error {
 		}
 	}
 
+	// See if we need to drop the data
+	for i := range q.allQuestions {
+		m, ok := results[q.allQuestions[i].GetID()]
+		if !ok {
+			m = make(map[string][]string)
+		}
+		if q.allQuestions[i].IgnoreRecord(m) {
+			// Silently drop out and ignore the record
+			return nil
+		}
+	}
+
 	// We need to ensure the order is preserved and that parallel execution does not mess it up
 	q.saveMutex.Lock()
 	defer q.saveMutex.Unlock()

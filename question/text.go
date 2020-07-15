@@ -155,6 +155,10 @@ func (t text) ValidateInput(data map[string][]string) error {
 	return nil
 }
 
+func (t text) IgnoreRecord(data map[string][]string) bool {
+	return false
+}
+
 func (t text) GetDatabaseEntry(data map[string][]string) string {
 	if len(data[t.id]) >= 1 {
 		return data[t.id][0]

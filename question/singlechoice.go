@@ -243,6 +243,10 @@ func (sc singleChoice) ValidateInput(data map[string][]string) error {
 	return fmt.Errorf("singlechoice: Unknown id '%s'", r[0])
 }
 
+func (sc singleChoice) IgnoreRecord(data map[string][]string) bool {
+	return false
+}
+
 func (sc singleChoice) GetDatabaseEntry(data map[string][]string) string {
 	result := ""
 	r, ok := data[sc.id]

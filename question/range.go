@@ -288,6 +288,10 @@ func (r rangeQuestion) ValidateInput(data map[string][]string) error {
 	return fmt.Errorf("range: Input '%d' not in range", value)
 }
 
+func (r rangeQuestion) IgnoreRecord(data map[string][]string) bool {
+	return false
+}
+
 func (r rangeQuestion) GetDatabaseEntry(data map[string][]string) string {
 	if len(data[r.id]) >= 1 {
 		return data[r.id][0]

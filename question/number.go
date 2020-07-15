@@ -301,6 +301,10 @@ func (n numberQuestion) ValidateInput(data map[string][]string) error {
 	return nil
 }
 
+func (n numberQuestion) IgnoreRecord(data map[string][]string) bool {
+	return false
+}
+
 func (n numberQuestion) GetDatabaseEntry(data map[string][]string) string {
 	if len(data[n.id]) >= 1 {
 		return data[n.id][0]

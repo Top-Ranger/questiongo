@@ -337,6 +337,10 @@ func (m matrix) ValidateInput(data map[string][]string) error {
 	return nil
 }
 
+func (m matrix) IgnoreRecord(data map[string][]string) bool {
+	return false
+}
+
 func (m matrix) GetDatabaseEntry(data map[string][]string) string {
 	result := make([]string, len(m.Questions))
 	for i := range m.Questions {

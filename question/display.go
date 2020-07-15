@@ -89,6 +89,10 @@ func (d display) ValidateInput(data map[string][]string) error {
 	return nil
 }
 
+func (d display) IgnoreRecord(data map[string][]string) bool {
+	return false
+}
+
 func (d display) GetDatabaseEntry(data map[string][]string) string {
 	return ""
 }

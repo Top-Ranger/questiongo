@@ -539,6 +539,10 @@ func (a appointment) ValidateInput(data map[string][]string) error {
 	return nil
 }
 
+func (a appointment) IgnoreRecord(data map[string][]string) bool {
+	return false
+}
+
 func (a appointment) GetDatabaseEntry(data map[string][]string) string {
 	results := make(map[string]string)
 	if len(data[fmt.Sprintf("%s_name", a.id)]) != 0 {

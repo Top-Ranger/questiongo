@@ -206,6 +206,10 @@ func (d dateQuestion) ValidateInput(data map[string][]string) error {
 	return nil
 }
 
+func (d dateQuestion) IgnoreRecord(data map[string][]string) bool {
+	return false
+}
+
 func (d dateQuestion) GetDatabaseEntry(data map[string][]string) string {
 	if len(data[d.id]) >= 1 {
 		if data[d.id][0] == "" {
