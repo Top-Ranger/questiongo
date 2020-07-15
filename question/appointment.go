@@ -245,8 +245,18 @@ func appointmentPoints(answer string) float64 {
 	}
 }
 
-var appointmentTemplate = template.Must(template.New("appointmentTemplate").Parse(`{{.Text}}<br>
-<p><label for="{{.ID}}_name">{{.Translation.AppointmentName}} {{if .NameRequired}}<em>({{.Translation.AppointmentRequired}})</em>{{else}}<em>({{.Translation.AppointmentOptional}})</em>{{end}}:</label> <input type="text" id="{{.ID}}_name" name="{{.ID}}_name" placeholder="{{.Translation.AppointmentName}}" maxlength="150" {{if .NameRequired}}required{{end}}></p>
+var appointmentTemplate = template.Must(template.New("appointmentTemplate").Parse(`{{.Text}}
+<table style="border: none;">
+<tr style="border: none; background-color: inherit;">
+<td style="border: none;"><label for="{{.ID}}_name">{{.Translation.AppointmentName}} {{if .NameRequired}}<em>({{.Translation.AppointmentRequired}})</em>{{else}}<em>({{.Translation.AppointmentOptional}})</em>{{end}}:</label></td>
+<td style="border: none;"><input type="text" id="{{.ID}}_name" name="{{.ID}}_name" placeholder="{{.Translation.AppointmentName}}" maxlength="150" {{if .NameRequired}}required{{end}}></td>
+</tr>
+<tr style="border: none; background-color: inherit;">
+<td style="border: none;"><label for="{{.ID}}_comment">{{.Translation.AppointmentComment}} <em>({{.Translation.AppointmentOptional}})</em>:</label></td>
+<td style="border: none;"><input type="text" id="{{.ID}}_comment" name="{{.ID}}_comment" placeholder="{{.Translation.AppointmentComment}}" maxlength="500"></td>
+</tr>
+</table>
+<br>
 <table>
 <thead>
 <tr>
@@ -276,7 +286,6 @@ var appointmentTemplate = template.Must(template.New("appointmentTemplate").Pars
 {{end}}
 </tbody>
 </table>
-<p><label for="{{.ID}}_comment">{{.Translation.AppointmentComment}} <em>({{.Translation.AppointmentOptional}})</em>:</label> <input type="text" id="{{.ID}}_comment" name="{{.ID}}_comment" placeholder="{{.Translation.AppointmentComment}}" maxlength="500"></p>
 `))
 
 var appointmentStatisticsTemplate = template.Must(template.New("appointmentStatisticsTemplate").Parse(`{{.Text}}
