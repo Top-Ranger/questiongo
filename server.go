@@ -262,6 +262,8 @@ func questionnaireHandle(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
 	key := r.URL.Path
 	key = strings.TrimLeft(key, "/")
 	q, ok := questionnaires[key]
@@ -289,16 +291,13 @@ func questionnaireHandle(rw http.ResponseWriter, r *http.Request) {
 	_, end := query["end"]
 
 	if main {
-		rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		q.WriteQuestions(rw)
 		return
 	}
 	if end {
-		rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		rw.Write(q.GetEnd())
 		return
 	}
-	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	rw.Write(q.GetStart())
 	return
 }
@@ -336,6 +335,7 @@ func answerHandle(rw http.ResponseWriter, r *http.Request) {
 }
 
 func resultsHandle(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	translationStruct := translation.GetDefaultTranslation()
 	if r.Method == http.MethodPost {
 		err := r.ParseForm()
@@ -350,13 +350,11 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 
 		q, ok := questionnaires[key]
 		if !ok {
-			rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 			resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct})
 			return
 		}
 
 		if !q.VerifyPassword(pw) {
-			rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 			resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct})
 			return
 		}
@@ -382,16 +380,16 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 			Translation: translationStruct,
 		}
 
-		rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		resultsTemplate.Execute(rw, td)
 
 		return
 	}
-	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct})
 }
 
 func zipHandle(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
 	err := r.ParseForm()
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -409,12 +407,10 @@ func zipHandle(rw http.ResponseWriter, r *http.Request) {
 
 	q, ok := questionnaires[key]
 	if !ok {
-		rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation()})
 		return
 	}
 
-	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	err = q.WriteZip(rw)
 	if err != nil {
 		log.Printf("error sending zip: %s", err.Error())
@@ -423,6 +419,8 @@ func zipHandle(rw http.ResponseWriter, r *http.Request) {
 }
 
 func csvHandle(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
 	err := r.ParseForm()
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -440,12 +438,10 @@ func csvHandle(rw http.ResponseWriter, r *http.Request) {
 
 	q, ok := questionnaires[key]
 	if !ok {
-		rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation()})
 		return
 	}
 
-	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	err = q.WriteCSV(rw)
 	if err != nil {
 		log.Printf("error sending zip: %s", err.Error())
