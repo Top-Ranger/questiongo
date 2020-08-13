@@ -39,6 +39,7 @@ import (
 var serverMutex sync.Mutex
 var serverStarted bool
 var server http.Server
+var rootPath string
 
 var textTemplate *template.Template
 var errorTemplate *template.Template
@@ -106,11 +107,13 @@ func init() {
 type errorTemplateStruct struct {
 	Error       template.HTML
 	Translation translation.Translation
+	ServerPath  string
 }
 
 type textTemplateStruct struct {
 	Text        template.HTML
 	Translation translation.Translation
+	ServerPath  string
 }
 
 type resultsTemplateStruct struct {
@@ -118,10 +121,12 @@ type resultsTemplateStruct struct {
 	Key         string
 	Auth        string
 	Translation translation.Translation
+	ServerPath  string
 }
 
 type resultsAccessTemplateStruct struct {
 	Translation translation.Translation
+	ServerPath  string
 }
 
 func initialiseServer() error {
@@ -131,6 +136,8 @@ func initialiseServer() error {
 	server = http.Server{Addr: config.Address}
 
 	// Do setup
+	rootPath = strings.Join([]string{config.ServerPath, "/"}, "")
+
 	// DSGVO
 	b, err := ioutil.ReadFile(config.PathDSGVO)
 	if err != nil {
@@ -140,12 +147,12 @@ func initialiseServer() error {
 	if !ok {
 		return fmt.Errorf("Unknown format type %s (DSGVO)", config.FormatDSGVO)
 	}
-	text := textTemplateStruct{f.Format(b), translation.GetDefaultTranslation()}
+	text := textTemplateStruct{f.Format(b), translation.GetDefaultTranslation(), config.ServerPath}
 	output := bytes.NewBuffer(make([]byte, 0, len(text.Text)*2))
 	textTemplate.Execute(output, text)
 	dsgvo = output.Bytes()
 
-	http.HandleFunc("/dsgvo.html", func(rw http.ResponseWriter, r *http.Request) {
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/dsgvo.html"}, ""), func(rw http.ResponseWriter, r *http.Request) {
 		rw.Write(dsgvo)
 	})
 
@@ -158,17 +165,17 @@ func initialiseServer() error {
 	if !ok {
 		return fmt.Errorf("Unknown format type %s (impressum)", config.FormatImpressum)
 	}
-	text = textTemplateStruct{f.Format(b), translation.GetDefaultTranslation()}
+	text = textTemplateStruct{f.Format(b), translation.GetDefaultTranslation(), config.ServerPath}
 	text.Text = template.HTML(strings.Join([]string{string(text.Text), "<p><img style=\"max-width: 500px\" src=\"/static/Logo.svg\" alt=\"Logo\"></p>"}, ""))
 	output = bytes.NewBuffer(make([]byte, 0, len(text.Text)*2))
 	textTemplate.Execute(output, text)
 	impressum = output.Bytes()
-	http.HandleFunc("/impressum.html", func(rw http.ResponseWriter, r *http.Request) {
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/impressum.html"}, ""), func(rw http.ResponseWriter, r *http.Request) {
 		rw.Write(impressum)
 	})
 
 	// static files
-	for _, d := range []string{"css/", "static/", "font/", "js/"} {
+	for _, d := range []string{"static/", "font/", "js/"} {
 		filepath.Walk(d, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				log.Panicln("server: Error wile caching files:", err)
@@ -183,6 +190,39 @@ func initialiseServer() error {
 					return err
 				}
 				cachedFiles[path] = b
+				return nil
+			}
+			return nil
+		})
+	}
+
+	// static files needing ServerPath replaced
+	for _, d := range []string{"css/"} {
+		filepath.Walk(d, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				log.Panicln("server: Error wile caching files:", err)
+			}
+
+			if info.Mode().IsRegular() {
+				log.Println("static file handler: Caching file", path)
+
+				b, err := ioutil.ReadFile(path)
+				if err != nil {
+					log.Println("static file handler: Error reading file:", err)
+					return err
+				}
+				t, err := template.New(path).Parse(string(b))
+				if err != nil {
+					log.Println("static file handler: Error parsing file:", err)
+					return err
+				}
+				buf := bytes.Buffer{}
+				err = t.Execute(&buf, struct{ ServerPath string }{config.ServerPath})
+				if err != nil {
+					log.Println("static file handler: Error executing template:", err)
+					return err
+				}
+				cachedFiles[path] = buf.Bytes()
 				return nil
 			}
 			return nil
@@ -208,6 +248,7 @@ func initialiseServer() error {
 
 		// Send file if existing in cache
 		path := r.URL.Path
+		path = strings.TrimPrefix(path, config.ServerPath)
 		path = strings.TrimPrefix(path, "/")
 		data, ok := cachedFiles[path]
 		if !ok {
@@ -231,13 +272,13 @@ func initialiseServer() error {
 		}
 	}
 
-	http.HandleFunc("/css/", staticHandle)
-	http.HandleFunc("/static/", staticHandle)
-	http.HandleFunc("/font/", staticHandle)
-	http.HandleFunc("/js/", staticHandle)
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/css/"}, ""), staticHandle)
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/static/"}, ""), staticHandle)
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/font/"}, ""), staticHandle)
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/js/"}, ""), staticHandle)
 
 	// robots.txt
-	http.HandleFunc("/robots.txt", func(rw http.ResponseWriter, r *http.Request) {
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/robots.txt"}, ""), func(rw http.ResponseWriter, r *http.Request) {
 		rw.Write(robottxt)
 	})
 
@@ -246,18 +287,18 @@ func initialiseServer() error {
 	if err != nil {
 		return err
 	}
-	http.HandleFunc("/answer.html", answerHandle)
-	http.HandleFunc("/results.html", resultsHandle)
-	http.HandleFunc("/results.zip", zipHandle)
-	http.HandleFunc("/results.csv", csvHandle)
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/answer.html"}, ""), answerHandle)
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/results.html"}, ""), resultsHandle)
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/results.zip"}, ""), zipHandle)
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/results.csv"}, ""), csvHandle)
 	http.HandleFunc("/", questionnaireHandle)
 
 	return nil
 }
 
 func questionnaireHandle(rw http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/" {
-		t := errorTemplateStruct{"<h1>QuestionGo!</h1>", translation.GetDefaultTranslation()}
+	if r.URL.Path == rootPath || r.URL.Path == config.ServerPath || r.URL.Path == "/" {
+		t := errorTemplateStruct{"<h1>QuestionGo!</h1>", translation.GetDefaultTranslation(), config.ServerPath}
 		errorTemplate.Execute(rw, t)
 		return
 	}
@@ -265,12 +306,20 @@ func questionnaireHandle(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
 	key := r.URL.Path
+	if !strings.HasPrefix(key, config.ServerPath) {
+		rw.WriteHeader(http.StatusNotFound)
+		translationStruct := translation.GetDefaultTranslation()
+		t := errorTemplateStruct{template.HTML(fmt.Sprintf("<h1>%s</h1>", translationStruct.CanNotFindQuestionnaire)), translationStruct, config.ServerPath}
+		errorTemplate.Execute(rw, t)
+		return
+	}
+	key = strings.TrimPrefix(key, config.ServerPath)
 	key = strings.TrimLeft(key, "/")
 	q, ok := questionnaires[key]
 	if !ok {
 		rw.WriteHeader(http.StatusNotFound)
 		translationStruct := translation.GetDefaultTranslation()
-		t := errorTemplateStruct{template.HTML(fmt.Sprintf("<h1>%s</h1>", translationStruct.CanNotFindQuestionnaire)), translationStruct}
+		t := errorTemplateStruct{template.HTML(fmt.Sprintf("<h1>%s</h1>", translationStruct.CanNotFindQuestionnaire)), translationStruct, config.ServerPath}
 		errorTemplate.Execute(rw, t)
 		return
 	}
@@ -282,7 +331,7 @@ func questionnaireHandle(rw http.ResponseWriter, r *http.Request) {
 			translationStruct = translation.GetDefaultTranslation()
 		}
 
-		t := errorTemplateStruct{helper.SanitiseString(fmt.Sprintf(translationStruct.QuestionnaireClosed, q.Contact)), translationStruct}
+		t := errorTemplateStruct{helper.SanitiseString(fmt.Sprintf(translationStruct.QuestionnaireClosed, q.Contact)), translationStruct, config.ServerPath}
 		errorTemplate.Execute(rw, t)
 		return
 	}
@@ -309,7 +358,7 @@ func answerHandle(rw http.ResponseWriter, r *http.Request) {
 	if !ok {
 		rw.WriteHeader(http.StatusNotFound)
 		translationStruct := translation.GetDefaultTranslation()
-		t := errorTemplateStruct{template.HTML(fmt.Sprintf("<h1>%s</h1>", translationStruct.CanNotFindQuestionnaire)), translationStruct}
+		t := errorTemplateStruct{template.HTML(fmt.Sprintf("<h1>%s</h1>", translationStruct.CanNotFindQuestionnaire)), translationStruct, config.ServerPath}
 		errorTemplate.Execute(rw, t)
 		return
 	}
@@ -324,14 +373,14 @@ func answerHandle(rw http.ResponseWriter, r *http.Request) {
 				log.Printf("server: error while getting translation (%s) for questionnaire %s: %s", q.Language, id, err.Error())
 				translationStruct = translation.GetDefaultTranslation()
 			}
-			textTemplate.Execute(rw, textTemplateStruct{template.HTML(translationStruct.ErrorAnswer), translationStruct})
+			textTemplate.Execute(rw, textTemplateStruct{template.HTML(translationStruct.ErrorAnswer), translationStruct, config.ServerPath})
 			return
 		}
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
-	http.Redirect(rw, r, fmt.Sprintf("%s?end=1", id), http.StatusSeeOther)
+	http.Redirect(rw, r, fmt.Sprintf("%s/%s?end=1", config.ServerPath, id), http.StatusSeeOther)
 }
 
 func resultsHandle(rw http.ResponseWriter, r *http.Request) {
@@ -350,12 +399,12 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 
 		q, ok := questionnaires[key]
 		if !ok {
-			resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct})
+			resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct, config.ServerPath})
 			return
 		}
 
 		if !q.VerifyPassword(pw) {
-			resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct})
+			resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct, config.ServerPath})
 			return
 		}
 
@@ -378,13 +427,14 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 			Key:         key,
 			Auth:        a,
 			Translation: translationStruct,
+			ServerPath:  config.ServerPath,
 		}
 
 		resultsTemplate.Execute(rw, td)
 
 		return
 	}
-	resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct})
+	resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct, config.ServerPath})
 }
 
 func zipHandle(rw http.ResponseWriter, r *http.Request) {
@@ -407,7 +457,7 @@ func zipHandle(rw http.ResponseWriter, r *http.Request) {
 
 	q, ok := questionnaires[key]
 	if !ok {
-		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation()})
+		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation(), config.ServerPath})
 		return
 	}
 
@@ -438,7 +488,7 @@ func csvHandle(rw http.ResponseWriter, r *http.Request) {
 
 	q, ok := questionnaires[key]
 	if !ok {
-		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation()})
+		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation(), config.ServerPath})
 		return
 	}
 

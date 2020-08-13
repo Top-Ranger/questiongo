@@ -8,8 +8,8 @@
   <meta name="author" content="Marcus Soll"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="author" href="https://msoll.eu/">
-  <link rel="stylesheet" href="/css/questiongo.css">
-  <link rel="icon" type="image/vnd.microsoft.icon" href="/static/favicon.ico">
+  <link rel="stylesheet" href="{{.ServerPath}}/css/questiongo.css">
+  <link rel="icon" type="image/vnd.microsoft.icon" href="{{.ServerPath}}/static/favicon.ico">
 </head>
 
 <body>
@@ -20,7 +20,7 @@
   </header>
 
   <div>
-    <form action="/results.html" target="_self" method="post">
+    <form action="{{.ServerPath}}/results.html" target="_self" method="post">
         <p><label for="key">{{.Translation.Key}}:</label> <br> <input id="key" type="text" name="key" maxlength="500" required autofocus></p>
         <p><label for="pw">{{.Translation.Password}}:</label> <br> <input id="pw" type="password" name="pw" maxlength="500" required></p>
         <p><input type="submit" value="{{.Translation.AccessResults}}"></p>
@@ -29,7 +29,7 @@
 
   <footer>
     <div>
-      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="/dsgvo.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="{{.ServerPath}}/dsgvo.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
     </div>
   </footer>
 </body>

@@ -7,5 +7,6 @@
     "FormatDSGVO": "markdown",
     "DataFolder": "data",
     "DataSafe": "fileappend",
-    "DataSafeConfig": "config/datasafe-fileappend"
+    "DataSafeConfig": "config/datasafe-fileappend",
+    "ServerPath": "/"
  }

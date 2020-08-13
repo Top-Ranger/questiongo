@@ -8,8 +8,8 @@
   <meta name="author" content="Marcus Soll"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="author" href="https://msoll.eu/">
-  <link rel="stylesheet" href="/css/questiongo.css">
-  <link rel="icon" type="image/vnd.microsoft.icon" href="/static/favicon.ico">
+  <link rel="stylesheet" href="{{.ServerPath}}/css/questiongo.css">
+  <link rel="icon" type="image/vnd.microsoft.icon" href="{{.ServerPath}}/static/favicon.ico">
 </head>
 
 <body>
@@ -29,7 +29,7 @@
   <noscript><h1>{{.Translation.JavaScriptRequired}}</h1></noscript>
   <div id="__start_link" hidden>
     <br>
-      <form action="/{{.Key}}" method="GET">
+      <form action="{{.ServerPath}}/{{.Key}}" method="GET">
         <input type="hidden" name="main" value="1">
         <input style="font-size: x-large; white-space: normal;" type="submit"  value="{{.Translation.StartQuestionnaire}}">
       </form>
@@ -40,7 +40,7 @@
 
   <footer>
     <div>
-      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="/dsgvo.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="{{.ServerPath}}/dsgvo.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
     </div>
   </footer>
 </body>

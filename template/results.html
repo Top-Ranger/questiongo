@@ -8,11 +8,11 @@
   <meta name="author" content="Marcus Soll"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="author" href="https://msoll.eu/">
-  <script src="/js/moment-with-locales-2.24.0.js"></script>
-  <script src="/js/Chart-2.9.3.js"></script>
-  <link rel="stylesheet" href="/css/Chart-2.9.3.css">
-  <link rel="stylesheet" href="/css/questiongo.css">
-  <link rel="icon" type="image/vnd.microsoft.icon" href="/static/favicon.ico">
+  <script src="{{.ServerPath}}/js/moment-with-locales-2.24.0.js"></script>
+  <script src="{{.ServerPath}}/js/Chart-2.9.3.js"></script>
+  <link rel="stylesheet" href="{{.ServerPath}}/css/Chart-2.9.3.css">
+  <link rel="stylesheet" href="{{.ServerPath}}/css/questiongo.css">
+  <link rel="icon" type="image/vnd.microsoft.icon" href="{{.ServerPath}}/static/favicon.ico">
 </head>
 
 <body>
@@ -31,12 +31,12 @@
   {{end}}
 
   <hr>
-  <form action="/results.csv" target="_blank" method="post">
+  <form action="{{.ServerPath}}/results.csv" target="_blank" method="post">
     <input type="hidden" name="key" value={{.Key}}>
     <input type="hidden" name="auth" value={{.Auth}}>
     <input type="submit" value="Download CSV">
   </form> <br>
-  <form action="/results.zip" target="_self" method="post">
+  <form action="{{.ServerPath}}/results.zip" target="_self" method="post">
     <input type="hidden" name="key" value={{.Key}}>
     <input type="hidden" name="auth" value={{.Auth}}>
     <input type="submit" value="Download ZIP">
@@ -53,7 +53,7 @@
 
   <footer>
     <div>
-      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="/dsgvo.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="{{.ServerPath}}/dsgvo.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
     </div>
   </footer>
 </body>

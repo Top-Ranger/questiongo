@@ -136,6 +136,7 @@ type questionnaireTemplateStruct struct {
 	AllowBack    bool
 	ID           string
 	Translation  translation.Translation
+	ServerPath   string
 }
 
 type questionnaireStartTemplateStruct struct {
@@ -143,6 +144,7 @@ type questionnaireStartTemplateStruct struct {
 	Key         string
 	Contact     string
 	Translation translation.Translation
+	ServerPath  string
 }
 
 // GetStart returns the questionnaire start page.
@@ -164,6 +166,7 @@ func (q Questionnaire) WriteQuestions(w io.Writer) {
 		ShowProgress: q.ShowProgress,
 		AllowBack:    q.AllowBack,
 		Translation:  translation.GetDefaultTranslation(),
+		ServerPath:   config.ServerPath,
 	}
 	for p := range q.Pages {
 		questionData := make([]template.HTML, len(q.Pages[p].questions))
@@ -482,6 +485,7 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 		Key:         key,
 		Contact:     q.Contact,
 		Translation: translationStruct,
+		ServerPath:  config.ServerPath,
 	}
 	output := bytes.NewBuffer(make([]byte, 0, len(td.Text)+len(td.Contact)+5000))
 	questionnaireStartTemplate.Execute(output, td)
@@ -496,7 +500,7 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 	if !ok {
 		return Questionnaire{}, fmt.Errorf("Can not format end: Unknown type %s (%s)", q.StartFormat, file)
 	}
-	text := textTemplateStruct{f.Format(b), translation.GetDefaultTranslation()}
+	text := textTemplateStruct{f.Format(b), translation.GetDefaultTranslation(), config.ServerPath}
 	output = bytes.NewBuffer(make([]byte, 0, len(text.Text)*2))
 	textTemplate.Execute(output, text)
 	q.endCache = output.Bytes()

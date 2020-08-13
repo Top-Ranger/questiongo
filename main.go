@@ -25,6 +25,7 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -47,6 +48,7 @@ type Config struct {
 	DataFolder      string
 	DataSafe        string
 	DataSafeConfig  string
+	ServerPath      string
 }
 
 var config Config
@@ -63,6 +65,12 @@ func loadConfig(path string) (Config, error) {
 	if err != nil {
 		return Config{}, errors.New(fmt.Sprintln("Error while parsing config.json:", err))
 	}
+
+	if !strings.HasPrefix(c.ServerPath, "/") && c.ServerPath != "" {
+		log.Println("load config: ServerPath does not start with '/', adding it as a prefix")
+		c.ServerPath = strings.Join([]string{"/", c.ServerPath}, "")
+	}
+	c.ServerPath = strings.TrimSuffix(c.ServerPath, "/")
 
 	return c, nil
 }
