@@ -404,6 +404,9 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 		}
 
 		if !q.VerifyPassword(pw) {
+			if config.LogFailedLogin {
+				log.Printf("Failed login from %s", r.RemoteAddr)
+			}
 			resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct, config.ServerPath})
 			return
 		}

@@ -8,5 +8,6 @@
     "DataFolder": "data",
     "DataSafe": "fileappend",
     "DataSafeConfig": "config/datasafe-fileappend",
+    "LogFailedLogin": true,
     "ServerPath": "/"
  }

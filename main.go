@@ -48,6 +48,7 @@ type Config struct {
 	DataFolder      string
 	DataSafe        string
 	DataSafeConfig  string
+	LogFailedLogin  bool
 	ServerPath      string
 }
 
