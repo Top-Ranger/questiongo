@@ -400,7 +400,7 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 		q, ok := questionnaires[key]
 		if !ok {
 			if config.LogFailedLogin {
-				log.Printf("Failed login from %s", r.RemoteAddr)
+				log.Printf("Failed login from %s", helper.GetRealIP(r))
 			}
 			resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct, config.ServerPath})
 			return
@@ -408,7 +408,7 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 
 		if !q.VerifyPassword(pw) {
 			if config.LogFailedLogin {
-				log.Printf("Failed login from %s", r.RemoteAddr)
+				log.Printf("Failed login from %s", helper.GetRealIP(r))
 			}
 			resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct, config.ServerPath})
 			return
