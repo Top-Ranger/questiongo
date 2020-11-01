@@ -41,6 +41,7 @@ type Translation struct {
 	AppointmentRequired         string
 	AppointmentOptional         string
 	AppointmentComment          string
+	AppointmentAll              string
 	WeekdayMonday               string
 	WeekdayTuesday              string
 	WeekdayWednesday            string
