@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -75,6 +75,7 @@ func FactoryNumber(data []byte, id string, language string) (registry.Question, 
 
 var numberTemplate = template.Must(template.New("numberTemplate").Parse(`<label for="{{.QID}}">{{.Question}}</label><br>
 <input type="number" name="{{.QID}}" {{if .HasMinMax}}min="{{.Min}}" max="{{.Max}}"{{end}} {{if .HasStep}}step="{{.Step}}"{{end}} {{if .Required}}required{{end}}>
+<p></p>
 `))
 
 var numberStatisticsTemplate = template.Must(template.New("numberStatisticTemplate").Parse(`{{.Question}}<br>
