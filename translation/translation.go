@@ -1,12 +1,9 @@
 package translation
 
 import (
+	"embed"
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
-	"path/filepath"
 	"reflect"
 	"strings"
 	"sync"
@@ -53,12 +50,14 @@ type Translation struct {
 
 const defaultLanguage = "en"
 
+//go:embed *.json
+var translationFiles embed.FS
+
 var fixedDefaultTranslation Translation
 
 var current string
 var languageMap = make(map[string]Translation)
 var rwlock sync.RWMutex
-var translationPath = "./translation"
 
 func init() {
 	err := SetDefaultTranslation(defaultLanguage)
@@ -90,13 +89,8 @@ func GetTranslation(language string) (Translation, error) {
 	defer rwlock.Unlock()
 
 	file := strings.Join([]string{language, "json"}, ".")
-	file = filepath.Join(translationPath, file)
 
-	if _, err := os.Open(file); os.IsNotExist(err) {
-		return Translation{}, fmt.Errorf("no translation for language '%s'", language)
-	}
-
-	b, err := ioutil.ReadFile(file)
+	b, err := translationFiles.ReadFile(file)
 	if err != nil {
 		return Translation{}, err
 	}

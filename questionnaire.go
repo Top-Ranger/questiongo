@@ -65,22 +65,12 @@ func init() {
 		},
 	}
 
-	b, err := ioutil.ReadFile("template/questionnaire.html")
+	questionnaireTemplate, err = template.New("questionnaire").Funcs(funcMap).ParseFS(templateFiles, "template/questionnaire.html")
 	if err != nil {
 		panic(err)
 	}
 
-	questionnaireTemplate, err = template.New("questionnaire").Funcs(funcMap).Parse(string(b))
-	if err != nil {
-		panic(err)
-	}
-
-	b, err = ioutil.ReadFile("template/start.html")
-	if err != nil {
-		panic(err)
-	}
-
-	questionnaireStartTemplate, err = template.New("questionnaireStart").Parse(string(b))
+	questionnaireStartTemplate, err = template.ParseFS(templateFiles, "template/start.html")
 	if err != nil {
 		panic(err)
 	}
