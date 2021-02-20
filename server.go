@@ -385,7 +385,10 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:  config.ServerPath,
 		}
 
-		resultsTemplate.Execute(rw, td)
+		err = resultsTemplate.ExecuteTemplate(rw, "results.html", td)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 
 		return
 	}

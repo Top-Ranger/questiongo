@@ -189,7 +189,7 @@ func (q Questionnaire) WriteQuestions(w io.Writer) {
 		}
 	}
 
-	err := questionnaireTemplate.Execute(w, t)
+	err := questionnaireTemplate.ExecuteTemplate(w, "questionnaire.html", t)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
