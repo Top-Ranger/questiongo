@@ -41,11 +41,6 @@ var serverStarted bool
 var server http.Server
 var rootPath string
 
-//go:embed template
-var templateFiles embed.FS
-
-var textTemplate *template.Template
-var errorTemplate *template.Template
 var resultsTemplate *template.Template
 var resultsAccessTemplate *template.Template
 
@@ -65,28 +60,12 @@ Disallow: /`)
 func init() {
 	var err error
 
-	errorTemplate, err = template.ParseFS(templateFiles, "template/error.html")
-	if err != nil {
-		panic(err)
-	}
-
-	textTemplate, err = template.ParseFS(templateFiles, "template/text.html")
-	if err != nil {
-		panic(err)
-	}
-
 	resultsAccessTemplate, err = template.ParseFS(templateFiles, "template/resultsAccess.html")
 	if err != nil {
 		panic(err)
 	}
 
-	funcMap := template.FuncMap{
-		"even": func(i int) bool {
-			return i%2 == 0
-		},
-	}
-
-	resultsTemplate, err = template.New("results").Funcs(funcMap).ParseFS(templateFiles, "template/results.html")
+	resultsTemplate, err = template.New("results").Funcs(evenOddFuncMap).ParseFS(templateFiles, "template/results.html")
 	if err != nil {
 		panic(err)
 	}
@@ -95,18 +74,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-type errorTemplateStruct struct {
-	Error       template.HTML
-	Translation translation.Translation
-	ServerPath  string
-}
-
-type textTemplateStruct struct {
-	Text        template.HTML
-	Translation translation.Translation
-	ServerPath  string
 }
 
 type resultsTemplateStruct struct {

@@ -59,13 +59,7 @@ func init() {
 		panic(err)
 	}
 
-	funcMap := template.FuncMap{
-		"even": func(i int) bool {
-			return i%2 == 0
-		},
-	}
-
-	questionnaireTemplate, err = template.New("questionnaire").Funcs(funcMap).ParseFS(templateFiles, "template/questionnaire.html")
+	questionnaireTemplate, err = template.New("questionnaire").Funcs(evenOddFuncMap).ParseFS(templateFiles, "template/questionnaire.html")
 	if err != nil {
 		panic(err)
 	}
