@@ -26,10 +26,10 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -411,7 +411,7 @@ func (q Questionnaire) VerifyPassword(password string) bool {
 func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 	// Load config
 	var q Questionnaire
-	b, err := ioutil.ReadFile(file)
+	b, err := os.ReadFile(file)
 	if err != nil {
 		return Questionnaire{}, err
 	}
@@ -443,7 +443,7 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 			}
 			testID[q.Pages[p].Questions[i][0]] = true
 			pathQ := filepath.Join(path, q.Pages[p].Questions[i][2])
-			b, err = ioutil.ReadFile(pathQ)
+			b, err = os.ReadFile(pathQ)
 			if err != nil {
 				return Questionnaire{}, fmt.Errorf("Can not read file %s: %w (%s)", pathQ, err, file)
 			}
@@ -462,7 +462,7 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 
 	// Fill cache
 	pathQ := filepath.Join(path, q.Start)
-	b, err = ioutil.ReadFile(pathQ)
+	b, err = os.ReadFile(pathQ)
 	if err != nil {
 		return Questionnaire{}, fmt.Errorf("Can not read file %s: %w (%s)", pathQ, err, file)
 	}
@@ -482,7 +482,7 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 	q.startCache = output.Bytes()
 
 	pathQ = filepath.Join(path, q.End)
-	b, err = ioutil.ReadFile(pathQ)
+	b, err = os.ReadFile(pathQ)
 	if err != nil {
 		return Questionnaire{}, fmt.Errorf("Can not read file %s: %w (%s)", pathQ, err, file)
 	}
@@ -513,7 +513,7 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 func LoadAllQuestionnaires(dataPath string) (map[string]Questionnaire, error) {
 	questionnaires := make(map[string]Questionnaire)
 
-	dirs, err := ioutil.ReadDir(config.DataFolder)
+	dirs, err := os.ReadDir(config.DataFolder)
 	if err != nil {
 		return nil, err
 	}
@@ -522,7 +522,7 @@ func LoadAllQuestionnaires(dataPath string) (map[string]Questionnaire, error) {
 		if !dirs[i].IsDir() {
 			continue
 		}
-		content, err := ioutil.ReadDir(filepath.Join(config.DataFolder, dirs[i].Name()))
+		content, err := os.ReadDir(filepath.Join(config.DataFolder, dirs[i].Name()))
 		if err != nil {
 			continue
 		}

@@ -17,7 +17,6 @@ package datasafe
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -88,7 +87,7 @@ func (fa *fileAppend) LoadConfig(data []byte) error {
 func (fa *fileAppend) GetData(questionnaireID, questionID string) ([]string, error) {
 	fa.mutex.Lock()
 	defer fa.mutex.Unlock()
-	b, err := ioutil.ReadFile(filepath.Join(fa.path, questionnaireID, questionID))
+	b, err := os.ReadFile(filepath.Join(fa.path, questionnaireID, questionID))
 	if os.IsNotExist(err) {
 		// No data was written - thats ok
 		return []string{}, nil

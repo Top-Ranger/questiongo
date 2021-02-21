@@ -20,7 +20,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
@@ -56,7 +55,7 @@ var config Config
 
 func loadConfig(path string) (Config, error) {
 	log.Printf("main: Loading config (%s)", path)
-	b, err := ioutil.ReadFile(path)
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return Config{}, errors.New(fmt.Sprintln("Can not read config.json:", err))
 	}
@@ -99,7 +98,7 @@ func main() {
 		log.Panicf("main: Unknown data safe %s", config.DataSafe)
 	}
 
-	b, err := ioutil.ReadFile(config.DataSafeConfig)
+	b, err := os.ReadFile(config.DataSafeConfig)
 	if err != nil {
 		log.Panicln(err)
 	}
