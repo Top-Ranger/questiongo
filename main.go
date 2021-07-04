@@ -31,6 +31,7 @@ import (
 	// Register types
 	_ "github.com/Top-Ranger/questiongo/datasafe"
 	_ "github.com/Top-Ranger/questiongo/format"
+	_ "github.com/Top-Ranger/questiongo/passwordmethods"
 	_ "github.com/Top-Ranger/questiongo/question"
 	"github.com/Top-Ranger/questiongo/registry"
 	"github.com/Top-Ranger/questiongo/translation"

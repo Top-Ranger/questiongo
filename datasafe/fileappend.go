@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,10 @@ func init() {
 	fa.data = make(chan fileAppendResult)
 	fa.close = make(chan bool)
 	fa.isClosed = make(chan bool)
-	registry.RegisterDataSafe(fa, "fileappend")
+	err := registry.RegisterDataSafe(fa, "fileappend")
+	if err != nil {
+		log.Panicln(err)
+	}
 }
 
 type fileAppendResult struct {

@@ -1,7 +1,7 @@
 // +build sqlite
 
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,10 @@ func init() {
 	s.data = make(chan sqliteResult)
 	s.close = make(chan bool)
 	s.isClosed = make(chan bool)
-	registry.RegisterDataSafe(s, "sqlite")
+	err := registry.RegisterDataSafe(s, "sqlite")
+	if err != nil {
+		log.Panicln(err)
+	}
 }
 
 type sqliteResult struct {

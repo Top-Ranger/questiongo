@@ -1,5 +1,6 @@
 {
     "Password": "test",
+    "PasswordMethod": "plain",
     "Open": true,
     "Language": "",
     "Start": "start.md",

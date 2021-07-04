@@ -324,7 +324,13 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if !q.VerifyPassword(pw) {
+		ok, err = registry.ComparePasswords(q.PasswordMethod, pw, q.Password)
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			rw.Write([]byte(err.Error()))
+			return
+		}
+		if !ok {
 			if config.LogFailedLogin {
 				log.Printf("Failed login from %s", helper.GetRealIP(r))
 			}

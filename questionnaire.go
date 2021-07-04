@@ -19,8 +19,6 @@ package main
 import (
 	"archive/zip"
 	"bytes"
-	crand "crypto/rand"
-	"crypto/subtle"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -36,7 +34,6 @@ import (
 
 	"github.com/Top-Ranger/questiongo/registry"
 	"github.com/Top-Ranger/questiongo/translation"
-	"golang.org/x/crypto/argon2"
 )
 
 // ErrValidation represents an error related to validating answer input
@@ -46,19 +43,9 @@ const hashLength = 33
 
 var questionnaireTemplate *template.Template
 var questionnaireStartTemplate *template.Template
-var hashSalt []byte
-
-var questionnairePasswordHash = func(s string) []byte {
-	return argon2.IDKey([]byte(s), hashSalt, 1, 64*1024, 2, hashLength)
-}
 
 func init() {
-	hashSalt = make([]byte, hashLength)
-	_, err := crand.Read(hashSalt)
-	if err != nil {
-		panic(err)
-	}
-
+	var err error
 	questionnaireTemplate, err = template.New("questionnaire").Funcs(evenOddFuncMap).ParseFS(templateFiles, "template/questionnaire.html")
 	if err != nil {
 		panic(err)
@@ -85,6 +72,7 @@ type QuestionnairePage struct {
 // A questionnaire is expected to hold all information in a single directory.
 type Questionnaire struct {
 	Password         string
+	PasswordMethod   string
 	Open             bool
 	Language         string
 	Start            string
@@ -100,7 +88,6 @@ type Questionnaire struct {
 	startCache   []byte
 	endCache     []byte
 	id           string
-	hash         []byte
 	allQuestions []registry.Question
 	saveMutex    *sync.Mutex // Ensure saving does not mix up
 }
@@ -391,13 +378,6 @@ func (q Questionnaire) SaveData(r *http.Request) error {
 	return nil
 }
 
-// VerifyPassword verifies whether the provided password matches the questionnaire password.
-func (q Questionnaire) VerifyPassword(password string) bool {
-	hash := questionnairePasswordHash(password)
-	r := subtle.ConstantTimeCompare(hash, q.hash) // for security
-	return r == 1
-}
-
 // LoadQuestionnaire loads a single questionnaire from a file.
 // path must contain the path to the questionnaire folder.
 // file must contain the path to the actual questionnaire json.
@@ -417,6 +397,12 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 	translationStruct, err := translation.GetTranslation(q.Language)
 	if err != nil {
 		return Questionnaire{}, fmt.Errorf("Can not get translation for language '%s'", q.Language)
+	}
+
+	// Check password method
+	ok := registry.PasswordMethodExists(q.PasswordMethod)
+	if !ok {
+		return Questionnaire{}, fmt.Errorf("Unknown password method '%s'", q.PasswordMethod)
 	}
 
 	// Load Questions
@@ -491,9 +477,6 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 
 	// ID
 	q.id = key
-
-	// hash
-	q.hash = questionnairePasswordHash(q.Password)
 
 	// mutex
 	q.saveMutex = new(sync.Mutex)
