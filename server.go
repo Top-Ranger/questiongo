@@ -126,7 +126,7 @@ func initialiseServer() error {
 		return fmt.Errorf("Unknown format type %s (impressum)", config.FormatImpressum)
 	}
 	text = textTemplateStruct{f.Format(b), translation.GetDefaultTranslation(), config.ServerPath}
-	text.Text = template.HTML(strings.Join([]string{string(text.Text), "<p><img style=\"max-width: 500px\" src=\"/static/Logo.svg\" alt=\"Logo\"></p>"}, ""))
+	text.Text = template.HTML(strings.Join([]string{string(text.Text), "<p><img style=\"max-width: min(500px, 80%);\" src=\"/static/Logo.svg\" alt=\"Logo\"></p>"}, ""))
 	output = bytes.NewBuffer(make([]byte, 0, len(text.Text)*2))
 	textTemplate.Execute(output, text)
 	impressum = output.Bytes()
