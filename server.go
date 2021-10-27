@@ -51,7 +51,6 @@ var questionnaires map[string]Questionnaire
 
 //go:embed static font js css
 var cachedFiles embed.FS
-var etagCompare string
 var cssTemplates *template.Template
 
 var robottxt = []byte(`User-agent: *
@@ -105,7 +104,7 @@ func initialiseServer() error {
 	}
 	f, ok := registry.GetFormatType(config.FormatDSGVO)
 	if !ok {
-		return fmt.Errorf("Unknown format type %s (DSGVO)", config.FormatDSGVO)
+		return fmt.Errorf("unknown format type %s (DSGVO)", config.FormatDSGVO)
 	}
 	text := textTemplateStruct{f.Format(b), translation.GetDefaultTranslation(), config.ServerPath}
 	output := bytes.NewBuffer(make([]byte, 0, len(text.Text)*2))
@@ -123,7 +122,7 @@ func initialiseServer() error {
 	}
 	f, ok = registry.GetFormatType(config.FormatImpressum)
 	if !ok {
-		return fmt.Errorf("Unknown format type %s (impressum)", config.FormatImpressum)
+		return fmt.Errorf("unknown format type %s (impressum)", config.FormatImpressum)
 	}
 	text = textTemplateStruct{f.Format(b), translation.GetDefaultTranslation(), config.ServerPath}
 	text.Text = template.HTML(strings.Join([]string{string(text.Text), "<p><img style=\"max-width: min(500px, 80%);\" src=\"/static/Logo.svg\" alt=\"Logo\"></p>"}, ""))
@@ -266,7 +265,6 @@ func questionnaireHandle(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rw.Write(q.GetStart())
-	return
 }
 
 func answerHandle(rw http.ResponseWriter, r *http.Request) {

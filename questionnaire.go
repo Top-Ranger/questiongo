@@ -39,8 +39,6 @@ import (
 // ErrValidation represents an error related to validating answer input
 type ErrValidation error
 
-const hashLength = 33
-
 var questionnaireTemplate *template.Template
 var questionnaireStartTemplate *template.Template
 
@@ -182,7 +180,7 @@ func (q Questionnaire) WriteQuestions(w io.Writer) {
 func (q Questionnaire) GetResults() ([]template.HTML, error) {
 	safe, ok := registry.GetDataSafe(config.DataSafe)
 	if !ok {
-		return nil, fmt.Errorf("Can not get datasafe %s", config.DataSafe)
+		return nil, fmt.Errorf("can not get datasafe %s", config.DataSafe)
 	}
 
 	result := make([]template.HTML, 0, len(q.allQuestions))
@@ -203,7 +201,7 @@ func (q Questionnaire) GetResults() ([]template.HTML, error) {
 func (q Questionnaire) WriteZip(w io.Writer) error {
 	safe, ok := registry.GetDataSafe(config.DataSafe)
 	if !ok {
-		return fmt.Errorf("Can not get datasafe %s", config.DataSafe)
+		return fmt.Errorf("can not get datasafe %s", config.DataSafe)
 	}
 
 	result := zip.NewWriter(w)
@@ -241,7 +239,7 @@ func (q Questionnaire) WriteZip(w io.Writer) error {
 func (q Questionnaire) WriteCSV(w io.Writer) error {
 	safe, ok := registry.GetDataSafe(config.DataSafe)
 	if !ok {
-		return fmt.Errorf("Can not get datasafe %s", config.DataSafe)
+		return fmt.Errorf("can not get datasafe %s", config.DataSafe)
 	}
 
 	csv := csv.NewWriter(w)
@@ -312,7 +310,7 @@ func (q Questionnaire) SaveData(r *http.Request) error {
 	results := make(map[string]map[string][]string)
 	safe, ok := registry.GetDataSafe(config.DataSafe)
 	if !ok {
-		return fmt.Errorf("Can not get datasafe %s", config.DataSafe)
+		return fmt.Errorf("can not get datasafe %s", config.DataSafe)
 	}
 	r.ParseForm()
 	for k := range r.Form {
@@ -398,13 +396,13 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 
 	translationStruct, err := translation.GetTranslation(q.Language)
 	if err != nil {
-		return Questionnaire{}, fmt.Errorf("Can not get translation for language '%s'", q.Language)
+		return Questionnaire{}, fmt.Errorf("can not get translation for language '%s'", q.Language)
 	}
 
 	// Check password method
 	ok := registry.PasswordMethodExists(q.PasswordMethod)
 	if !ok {
-		return Questionnaire{}, fmt.Errorf("Unknown password method '%s'", q.PasswordMethod)
+		return Questionnaire{}, fmt.Errorf("unknown password method '%s'", q.PasswordMethod)
 	}
 
 	// Load Questions
@@ -415,7 +413,7 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 
 		for i := range q.Pages[p].Questions {
 			if len(q.Pages[p].Questions[i]) != 3 {
-				return Questionnaire{}, fmt.Errorf("Question %d-%d arguments have wrong length (%s)", p, i, file)
+				return Questionnaire{}, fmt.Errorf("question %d-%d arguments have wrong length (%s)", p, i, file)
 			}
 			if strings.Contains(q.Pages[p].Questions[i][0], "_") {
 				return Questionnaire{}, fmt.Errorf("ID %s must not have '_' (%s)", q.Pages[p].Questions[i][0], file)
@@ -427,15 +425,15 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 			pathQ := filepath.Join(path, q.Pages[p].Questions[i][2])
 			b, err = os.ReadFile(pathQ)
 			if err != nil {
-				return Questionnaire{}, fmt.Errorf("Can not read file %s: %w (%s)", pathQ, err, file)
+				return Questionnaire{}, fmt.Errorf("can not read file %s: %w (%s)", pathQ, err, file)
 			}
 			factory, ok := registry.GetQuestionType(q.Pages[p].Questions[i][1])
 			if !ok {
-				return Questionnaire{}, fmt.Errorf("Unknown question type %s (%s)", q.Pages[p].Questions[i][1], file)
+				return Questionnaire{}, fmt.Errorf("unknown question type %s (%s)", q.Pages[p].Questions[i][1], file)
 			}
 			newQuestion, err := factory(b, q.Pages[p].Questions[i][0], q.Language)
 			if err != nil {
-				return Questionnaire{}, fmt.Errorf("Can not create question %d-%d: %w (%s)", p, i, err, file)
+				return Questionnaire{}, fmt.Errorf("can not create question %d-%d: %w (%s)", p, i, err, file)
 			}
 			q.Pages[p].questions = append(q.Pages[p].questions, newQuestion)
 			q.allQuestions = append(q.allQuestions, newQuestion)
@@ -446,11 +444,11 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 	pathQ := filepath.Join(path, q.Start)
 	b, err = os.ReadFile(pathQ)
 	if err != nil {
-		return Questionnaire{}, fmt.Errorf("Can not read file %s: %w (%s)", pathQ, err, file)
+		return Questionnaire{}, fmt.Errorf("can not read file %s: %w (%s)", pathQ, err, file)
 	}
 	f, ok := registry.GetFormatType(q.StartFormat)
 	if !ok {
-		return Questionnaire{}, fmt.Errorf("Can not format start: Unknown type %s (%s)", q.StartFormat, file)
+		return Questionnaire{}, fmt.Errorf("can not format start: Unknown type %s (%s)", q.StartFormat, file)
 	}
 	td := questionnaireStartTemplateStruct{
 		Text:        f.Format(b),
@@ -466,11 +464,11 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 	pathQ = filepath.Join(path, q.End)
 	b, err = os.ReadFile(pathQ)
 	if err != nil {
-		return Questionnaire{}, fmt.Errorf("Can not read file %s: %w (%s)", pathQ, err, file)
+		return Questionnaire{}, fmt.Errorf("can not read file %s: %w (%s)", pathQ, err, file)
 	}
 	f, ok = registry.GetFormatType(q.EndFormat)
 	if !ok {
-		return Questionnaire{}, fmt.Errorf("Can not format end: Unknown type %s (%s)", q.StartFormat, file)
+		return Questionnaire{}, fmt.Errorf("can not format end: Unknown type %s (%s)", q.StartFormat, file)
 	}
 	text := textTemplateStruct{f.Format(b), translation.GetDefaultTranslation(), config.ServerPath}
 	output = bytes.NewBuffer(make([]byte, 0, len(text.Text)*2))
@@ -480,10 +478,10 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 	// Check random order
 	if q.RandomOrderPages {
 		if q.DoNotRandomiseFirstNPages < 0 {
-			return Questionnaire{}, fmt.Errorf("Value DoNotRandomiseFirstNPages must be positive, is %d (%s)", q.DoNotRandomiseFirstNPages, file)
+			return Questionnaire{}, fmt.Errorf("value DoNotRandomiseFirstNPages must be positive, is %d (%s)", q.DoNotRandomiseFirstNPages, file)
 		}
 		if q.DoNotRandomiseLastNPages < 0 {
-			return Questionnaire{}, fmt.Errorf("Value DoNotRandomiseLastNPages must be positive, is %d (%s)", q.DoNotRandomiseLastNPages, file)
+			return Questionnaire{}, fmt.Errorf("value DoNotRandomiseLastNPages must be positive, is %d (%s)", q.DoNotRandomiseLastNPages, file)
 		}
 
 		if q.DoNotRandomiseFirstNPages+q.DoNotRandomiseLastNPages > len(q.Pages) {
