@@ -71,19 +71,21 @@ type QuestionnairePage struct {
 // It must not be created on its own, but retrieved from LoadQuestionnaire or LoadAllQuestionnaires.
 // A questionnaire is expected to hold all information in a single directory.
 type Questionnaire struct {
-	Password         string
-	PasswordMethod   string
-	Open             bool
-	Language         string
-	Start            string
-	StartFormat      string
-	End              string
-	EndFormat        string
-	Contact          string
-	RandomOrderPages bool
-	ShowProgress     bool
-	AllowBack        bool
-	Pages            []QuestionnairePage
+	Password                  string
+	PasswordMethod            string
+	Open                      bool
+	Language                  string
+	Start                     string
+	StartFormat               string
+	End                       string
+	EndFormat                 string
+	Contact                   string
+	RandomOrderPages          bool
+	DoNotRandomiseFirstNPages int
+	DoNotRandomiseLastNPages  int
+	ShowProgress              bool
+	AllowBack                 bool
+	Pages                     []QuestionnairePage
 
 	startCache   []byte
 	endCache     []byte
@@ -153,8 +155,8 @@ func (q Questionnaire) WriteQuestions(w io.Writer) {
 	}
 
 	if q.RandomOrderPages {
-		rand.Shuffle(len(t.Pages), func(i, j int) {
-			t.Pages[i], t.Pages[j] = t.Pages[j], t.Pages[i]
+		rand.Shuffle(len(t.Pages)-q.DoNotRandomiseFirstNPages-q.DoNotRandomiseLastNPages, func(i, j int) {
+			t.Pages[i+q.DoNotRandomiseFirstNPages], t.Pages[j+q.DoNotRandomiseFirstNPages] = t.Pages[j+q.DoNotRandomiseFirstNPages], t.Pages[i+q.DoNotRandomiseFirstNPages]
 		})
 	}
 
@@ -474,6 +476,20 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 	output = bytes.NewBuffer(make([]byte, 0, len(text.Text)*2))
 	textTemplate.Execute(output, text)
 	q.endCache = output.Bytes()
+
+	// Check random order
+	if q.RandomOrderPages {
+		if q.DoNotRandomiseFirstNPages < 0 {
+			return Questionnaire{}, fmt.Errorf("Value DoNotRandomiseFirstNPages must be positive, is %d (%s)", q.DoNotRandomiseFirstNPages, file)
+		}
+		if q.DoNotRandomiseLastNPages < 0 {
+			return Questionnaire{}, fmt.Errorf("Value DoNotRandomiseLastNPages must be positive, is %d (%s)", q.DoNotRandomiseLastNPages, file)
+		}
+
+		if q.DoNotRandomiseFirstNPages+q.DoNotRandomiseLastNPages > len(q.Pages) {
+			return Questionnaire{}, fmt.Errorf("DoNotRandomiseFirstNPages + DoNotRandomiseLastNPages must not be larger than number of pages, currently %d + %d = %d > %d (%s)", q.DoNotRandomiseFirstNPages, q.DoNotRandomiseLastNPages, q.DoNotRandomiseFirstNPages+q.DoNotRandomiseLastNPages, len(q.Pages), file)
+		}
+	}
 
 	// ID
 	q.id = key

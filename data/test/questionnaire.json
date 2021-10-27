@@ -9,9 +9,17 @@
     "EndFormat": "markdown",
     "Contact": "Marcus Soll (webmaster@msoll.eu)",
     "RandomOrderPages": true,
+    "DoNotRandomiseFirstNPages": 1,
+	"DoNotRandomiseLastNPages": 1,
     "ShowProgress": true,
     "AllowBack": true,
     "Pages": [
+        {
+            "RandomOrderQuestions": false,
+            "Questions": [
+                ["always-start", "display", "start.json"]
+            ]
+        },
         {
             "RandomOrderQuestions": false,
             "Questions": [
@@ -42,6 +50,12 @@
                 ["date", "date", "date.json"],
                 ["time", "time", "time.json"],
                 ["a", "appointment", "appointment.json"]
+            ]
+        },
+        {
+            "RandomOrderQuestions": false,
+            "Questions": [
+                ["always-end", "display", "end.json"]
             ]
         }
     ]
