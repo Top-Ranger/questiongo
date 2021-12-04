@@ -38,10 +38,10 @@ func init() {
 	}
 }
 
-// MySQLMaxLengthID is the maximum supported poll id length
+// MySQLMaxLengthID is the maximum supported id length
 const MySQLMaxLengthID = 500
 
-// ErrMySQLUnknownID is returned when the requested poll is not in the database
+// ErrMySQLUnknownID is returned when the id of the requested item is too long
 var ErrMySQLIDtooLong = errors.New("mysql: id is too long")
 
 // ErrMySQLNotConfigured is returned when the database is used before it is configured
@@ -158,7 +158,7 @@ func (m *mySQL) GetData(questionnaireID, questionID string) ([]string, error) {
 		return nil, ErrMySQLIDtooLong
 	}
 
-	rows, err := m.db.Query("SELECT data FROM data WHERE questionnaire=? AND question=?", questionnaireID, questionID)
+	rows, err := m.db.Query("SELECT data FROM data WHERE questionnaire=? AND question=? ORDER BY id ASC", questionnaireID, questionID)
 	if err != nil {
 		return nil, err
 	}
