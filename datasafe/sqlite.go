@@ -1,4 +1,4 @@
-// +build sqlite
+//go:build sqlite
 
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2020,2021 Marcus Soll
@@ -57,8 +57,16 @@ type sqlite struct {
 	isClosed chan bool
 }
 
+func (s *sqlite) IndicateTransactionStart(questionnaireID string) error {
+	return nil
+}
+
 func (s *sqlite) SaveData(questionnaireID, questionID, data string) error {
 	s.data <- sqliteResult{questionnaireID, questionID, data}
+	return nil
+}
+
+func (s *sqlite) IndicateTransactionEnd(questionnaireID string) error {
 	return nil
 }
 

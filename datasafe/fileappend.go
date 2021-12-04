@@ -73,8 +73,16 @@ type fileAppend struct {
 	isClosed chan bool
 }
 
+func (fa *fileAppend) IndicateTransactionStart(questionnaireID string) error {
+	return nil
+}
+
 func (fa *fileAppend) SaveData(questionnaireID, questionID, data string) error {
 	fa.data <- fileAppendResult{questionnaireID, questionID, data}
+	return nil
+}
+
+func (fa *fileAppend) IndicateTransactionEnd(questionnaireID string) error {
 	return nil
 }
 
@@ -110,8 +118,7 @@ func (fa *fileAppend) FlushAndClose() {
 	case fa.close <- true:
 	default:
 	}
-	_, _ = <-fa.isClosed
-	return
+	<-fa.isClosed
 }
 
 func (fa *fileAppend) fileappendWorker() {
@@ -165,12 +172,12 @@ func (fa *fileAppend) fileappendWorker() {
 					func() {
 						path := filepath.Join(fa.path, buffer[i].questionnaireID, buffer[i].questionID)
 						f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
-						defer f.Close()
 						if err != nil {
 							log.Printf("FileAppend: Can not create %s: %s", path, err.Error())
 							running = false
 							return
 						}
+						defer f.Close()
 
 						write := true
 						for write {

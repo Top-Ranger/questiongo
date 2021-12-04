@@ -96,7 +96,9 @@ type Format interface {
 // However, there reordering is allowed as long as the order for one questionnaireID / questionID combination is retained.
 // All methods must be save for parallel usage.
 type DataSafe interface {
+	IndicateTransactionStart(questionnaireID string) error   // Can be ignored if no atomic transaction is known. One transaction equals one questionnaire result
 	SaveData(questionnaireID, questionID, data string) error // Must preserve the order of data for a questionnaireID, questionID combination
+	IndicateTransactionEnd(questionnaireID string) error     // Can be ignored if no atomic transaction is known
 	GetData(questionnaireID, questionID string) ([]string, error)
 	LoadConfig(data []byte) error
 	FlushAndClose()
