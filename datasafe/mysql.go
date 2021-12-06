@@ -39,7 +39,7 @@ func init() {
 }
 
 // MySQLMaxLengthID is the maximum supported id length
-const MySQLMaxLengthID = 500
+const MySQLMaxLengthID = 150
 
 // ErrMySQLUnknownID is returned when the id of the requested item is too long
 var ErrMySQLIDtooLong = errors.New("mysql: id is too long")
