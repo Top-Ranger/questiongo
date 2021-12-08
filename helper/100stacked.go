@@ -111,8 +111,8 @@ func Stacked100Chart(v [][]int, id string, labelBars []string, LabelValues []str
 		Title:        title,
 		Width:        len(labelBars) * 5,
 	}
-	if td.Width > 50 {
-		td.Width = 50
+	if td.Width > 80 {
+		td.Width = 80
 	}
 	if td.Width < 15 {
 		td.Width = 15
