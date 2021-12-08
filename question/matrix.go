@@ -118,10 +118,7 @@ var matrixStatisticsTemplate = template.Must(template.New("matrixStatisticTempla
 {{end}}
 </tbody>
 </table>
-{{range $i, $e := .Images }}
-<br>
-{{$e}}
-{{end}}
+{{.Image}}
 `))
 
 type matrixTemplateStructInner struct {
@@ -147,7 +144,7 @@ type matrixStatisticTemplateStruct struct {
 	Title  template.HTML
 	Header []template.HTML
 	Data   []matrixStatisticsTemplateStructInner
-	Images []template.HTML
+	Image  template.HTML
 }
 
 type matrix struct {
@@ -279,33 +276,35 @@ func (m matrix) GetStatisticsDisplay(data []string) template.HTML {
 		Title:  f.Format([]byte(m.Title)),
 		Header: make([]template.HTML, len(m.Answers)+1),
 		Data:   make([]matrixStatisticsTemplateStructInner, 0, len(m.Questions)),
-		Images: make([]template.HTML, 0, len(m.Questions)),
+		Image:  "",
 	}
+	labelValues := make([]string, len(m.Answers))
+	labelBars := make([]string, len(m.Questions))
 	for i := range m.Answers {
 		td.Header[i] = f.FormatClean([]byte(m.Answers[i][1]))
+		labelValues[i] = string(td.Header[i])
 	}
 	td.Header[len(m.Answers)] = "[no answer]"
+	v := make([][]int, 0, len(m.Questions))
 
 	for i := range m.Questions {
-		v := make([]helper.ChartValue, len(m.Answers)+1)
+		vinner := make([]int, len(m.Answers))
 		question := f.FormatClean([]byte(m.Questions[i][1]))
 		inner := matrixStatisticsTemplateStructInner{
 			Question: question,
 			Result:   make([]float64, len(m.Answers)+1),
 		}
+		labelBars[i] = string(question)
 		for j := range m.Answers {
 			inner.Result[j] = float64(countAnswer[i][j]) / float64(count)
-			v[j].Label = string(td.Header[j])
-			v[j].Value = float64(countAnswer[i][j])
+			vinner[j] = countAnswer[i][j]
 		}
 		inner.Result[len(m.Answers)] = float64(countAnswer[i][len(m.Answers)]) / float64(count)
-		v[len(m.Answers)].Label = "[no answer]"
-		v[len(m.Answers)].Value = float64(countAnswer[i][len(m.Answers)])
-
-		td.Images = append(td.Images, helper.PieChart(v, fmt.Sprintf("%s_%s", m.id, string(helper.SanitiseStringClean(m.Questions[i][0]))), string(question)))
 
 		td.Data = append(td.Data, inner)
+		v = append(v, vinner)
 	}
+	td.Image = helper.Stacked100Chart(v, fmt.Sprintf("%s_bar", m.id), labelBars, labelValues, "")
 	output := bytes.NewBuffer(make([]byte, 0))
 	err := matrixStatisticsTemplate.Execute(output, td)
 	if err != nil {
