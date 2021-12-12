@@ -32,6 +32,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/Top-Ranger/questiongo/helper"
 	"github.com/Top-Ranger/questiongo/registry"
 	"github.com/Top-Ranger/questiongo/translation"
 )
@@ -264,7 +265,7 @@ func (q Questionnaire) WriteCSV(w io.Writer) error {
 		}
 	}
 
-	err := csv.Write(header)
+	err := csv.Write(helper.EscapeCSVLine(header))
 	if err != nil {
 		return err
 	}
@@ -289,7 +290,7 @@ func (q Questionnaire) WriteCSV(w io.Writer) error {
 				write = append(write, make([]string, len(q.allQuestions[i].GetStatisticsHeader()))...)
 			}
 		}
-		csv.Write(write)
+		csv.Write(helper.EscapeCSVLine(write))
 	}
 
 	csv.Flush()
