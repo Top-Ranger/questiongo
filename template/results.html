@@ -35,7 +35,7 @@
   {{end}}
 
   <hr>
-  <form action="{{.ServerPath}}/results.csv" target="_blank" method="post">
+  <form action="{{.ServerPath}}/results.csv" target="_self" method="post">
     <input type="hidden" name="key" value={{.Key}}>
     <input type="hidden" name="auth" value={{.Auth}}>
     <input type="submit" value="Download CSV">

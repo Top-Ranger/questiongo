@@ -392,6 +392,10 @@ func zipHandle(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	name := strings.ReplaceAll(key, "\"", "_")
+	name = strings.ReplaceAll(name, ";", "_")
+	rw.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", name))
+
 	err = q.WriteZip(rw)
 	if err != nil {
 		log.Printf("error sending zip: %s", err.Error())
@@ -422,6 +426,10 @@ func csvHandle(rw http.ResponseWriter, r *http.Request) {
 		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation(), config.ServerPath})
 		return
 	}
+
+	name := strings.ReplaceAll(key, "\"", "_")
+	name = strings.ReplaceAll(name, ";", "_")
+	rw.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.csv\"", name))
 
 	err = q.WriteCSV(rw)
 	if err != nil {
