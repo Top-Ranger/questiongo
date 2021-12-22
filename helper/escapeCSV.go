@@ -22,6 +22,8 @@ import (
 
 // EscapeCSVLine escapes a CSV line (as a []string) so it can be considered save with spreadsheet programs.
 // Escaping is according to https://owasp.org/www-community/attacks/CSV_Injection
+// Please note that since it is assumed the data is written by csv.Writer, escaping that is done by encoding/csv is not performed here (e.g. "-escaping).
+// If you are not using encoding/csv, you have to perform such escaping manually.
 func EscapeCSVLine(input []string) []string {
 	for i := range input {
 		input[i] = strings.TrimLeft(input[i], "\t\r")
