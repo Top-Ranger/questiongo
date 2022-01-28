@@ -1,0 +1,13 @@
+{
+    "Random": false,
+    "Required": true,
+    "Format": "markdown",
+    "Question": "Do you want to *add* any comment?",
+    "Answers": [
+        ["y", "yes"],
+        ["n", "no"]
+    ],
+    "QuestionOptionalText": "What do you want to **add**?",
+	"RowsOptionalText": 5,
+	"ShowOptionalText": ["y"]
+}

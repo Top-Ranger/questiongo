@@ -55,7 +55,8 @@
         {
             "RandomOrderQuestions": false,
             "Questions": [
-                ["always-end", "display", "end.json"]
+                ["always-end", "display", "end.json"],
+                ["comment", "single choice optional text", "scot.json"]
             ]
         }
     ]
