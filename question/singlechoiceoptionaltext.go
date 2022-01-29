@@ -218,6 +218,9 @@ func (sc singleChoiceOptionalText) GetStatistics(data []string) [][]string {
 		err := json.Unmarshal([]byte(data[d]), &r)
 		if err != nil {
 			result[d][0] = "[ERROR]"
+			result[d][1] = "[ERROR]"
+			result[d][2] = "[ERROR]"
+			return result
 		}
 		result[d][0] = r.Answer
 		result[d][1] = strconv.FormatBool(r.TextShown)
