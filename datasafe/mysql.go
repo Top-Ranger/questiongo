@@ -117,15 +117,14 @@ func (m *mySQL) IndicateTransactionEnd(questionnaireID string) error {
 	}
 
 	m.txCacheMutex.Lock()
-	defer m.txCacheMutex.Unlock()
+	tx := m.txCache[questionnaireID]
+	m.txCache[questionnaireID] = nil
+	m.txCacheMutex.Unlock()
 
 	var err error
 
-	tx := m.txCache[questionnaireID]
-
 	if tx != nil {
 		err = tx.Commit()
-		m.txCache[questionnaireID] = nil
 		if err != nil {
 			tx.Rollback()
 			return err
