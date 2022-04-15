@@ -220,13 +220,13 @@ func appointmentParseWeekday(day string) (time.Weekday, bool) {
 func appointmentColour(answer string) string {
 	switch answer {
 	case "✓":
-		return "#5EFF5E"
+		return "#9AC361"
 	case "👎":
-		return "#FFE75E"
+		return "#9A9A9A"
 	case "X":
-		return "#FF5E66"
+		return "#6C1239"
 	case "?":
-		return "#DBD9E2"
+		return "#F7F7F7"
 	default:
 		return ""
 	}
@@ -269,19 +269,19 @@ var appointmentTemplate = template.Must(template.New("appointmentTemplate").Pars
 </thead>
 <tr>
 <td></td>
-<td class="centre" bgcolor="#5EFF5E"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='✓'&&!l[i].disabled){l[i].checked=true}}">{{.Translation.AppointmentAll}} ✓</button></td>
-<td class="centre" bgcolor="#FFE75E"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='👎'&&!l[i].disabled){l[i].checked=true}}">{{.Translation.AppointmentAll}} 👎</button></td>
-<td class="centre" bgcolor="#FF5E66"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='X'&&!l[i].disabled){l[i].checked=true}}">{{.Translation.AppointmentAll}} X</button></td>
-<td class="centre" bgcolor="#DBD9E2"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='?'&&!l[i].disabled){l[i].checked=true}}">{{.Translation.AppointmentAll}} ?</button></td>
+<td class="centre" bgcolor="#9AC361"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='✓'&&!l[i].disabled){l[i].checked=true}}">{{.Translation.AppointmentAll}} ✓</button></td>
+<td class="centre" bgcolor="#9A9A9A"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='👎'&&!l[i].disabled){l[i].checked=true}}">{{.Translation.AppointmentAll}} 👎</button></td>
+<td class="centre" bgcolor="#6C1239"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='X'&&!l[i].disabled){l[i].checked=true}}">{{.Translation.AppointmentAll}} X</button></td>
+<td class="centre" bgcolor="#F7F7F7"><button form="detach from form" onclick="e=document.getElementById('{{.ID}}_tbody');l=e.getElementsByTagName('input');for(var i=0;i<l.length;i++){if(l[i].type==='radio'&&l[i].value==='?'&&!l[i].disabled){l[i].checked=true}}">{{.Translation.AppointmentAll}} ?</button></td>
 </tr>
 <tbody id="{{.ID}}_tbody">
 {{range $i, $e := .Data }}
 <tr>
 <td class="noselect">{{if $e.Disabled}}<s>{{else}}<strong>{{end}}{{$e.Display}}{{if $e.Disabled}}</s>{{else}}</strong>{{end}}</td>
-<td class="centre" bgcolor="#5EFF5E" title="{{$e.Display}} - ✓" onclick="e=document.getElementById('{{$e.ID}}_✓');if(!e.disabled){e.checked=true;}" onmouseenter="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_✓');if(!e.disabled){e.checked=true;}}" onmousedown="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_✓');if(!e.disabled){e.checked=true;}}"><input title="{{$e.Display}} - ✓" type="radio" id="{{$e.ID}}_✓" name="{{$e.ID}}" value="✓" {{if $e.Disabled}} disabled {{end}}></td>
-<td class="centre" bgcolor="#FFE75E" title="{{$e.Display}} - 👎" onclick="e=document.getElementById('{{$e.ID}}_👎');if(!e.disabled){e.checked=true;}" onmouseenter="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_👎');if(!e.disabled){e.checked=true;}}" onmousedown="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_👎');if(!e.disabled){e.checked=true;}}"><input title="{{$e.Display}} - 👎" type="radio" id="{{$e.ID}}_👎" name="{{$e.ID}}" value="👎" {{if $e.Disabled}} disabled {{end}}></td>
-<td class="centre" bgcolor="#FF5E66" title="{{$e.Display}} - X" onclick="e=document.getElementById('{{$e.ID}}_X');if(!e.disabled){e.checked=true;}" onmouseenter="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_X');if(!e.disabled){e.checked=true;}}" onmousedown="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_X');if(!e.disabled){e.checked=true;}}"><input title="{{$e.Display}} - X" type="radio" id="{{$e.ID}}_X" name="{{$e.ID}}" value="X" {{if $e.Disabled}} disabled {{end}}></td>
-<td class="centre" bgcolor="#DBD9E2" title="{{$e.Display}} - ?" onclick="e=document.getElementById('{{$e.ID}}_?');if(!e.disabled){e.checked=true;}" onmouseenter="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_?');if(!e.disabled){e.checked=true;}}" onmousedown="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_?');if(!e.disabled){e.checked=true;}}"><input title="{{$e.Display}} - ?" type="radio" id="{{$e.ID}}_?" name="{{$e.ID}}" value="?" {{if $e.Disabled}} disabled {{end}}></td>
+<td class="centre" bgcolor="#9AC361" title="{{$e.Display}} - ✓" onclick="e=document.getElementById('{{$e.ID}}_✓');if(!e.disabled){e.checked=true;}" onmouseenter="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_✓');if(!e.disabled){e.checked=true;}}" onmousedown="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_✓');if(!e.disabled){e.checked=true;}}"><input title="{{$e.Display}} - ✓" type="radio" id="{{$e.ID}}_✓" name="{{$e.ID}}" value="✓" {{if $e.Disabled}} disabled {{end}}></td>
+<td class="centre" bgcolor="#9A9A9A" title="{{$e.Display}} - 👎" onclick="e=document.getElementById('{{$e.ID}}_👎');if(!e.disabled){e.checked=true;}" onmouseenter="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_👎');if(!e.disabled){e.checked=true;}}" onmousedown="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_👎');if(!e.disabled){e.checked=true;}}"><input title="{{$e.Display}} - 👎" type="radio" id="{{$e.ID}}_👎" name="{{$e.ID}}" value="👎" {{if $e.Disabled}} disabled {{end}}></td>
+<td class="centre" bgcolor="#6C1239" title="{{$e.Display}} - X" onclick="e=document.getElementById('{{$e.ID}}_X');if(!e.disabled){e.checked=true;}" onmouseenter="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_X');if(!e.disabled){e.checked=true;}}" onmousedown="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_X');if(!e.disabled){e.checked=true;}}"><input title="{{$e.Display}} - X" type="radio" id="{{$e.ID}}_X" name="{{$e.ID}}" value="X" {{if $e.Disabled}} disabled {{end}}></td>
+<td class="centre" bgcolor="#F7F7F7" title="{{$e.Display}} - ?" onclick="e=document.getElementById('{{$e.ID}}_?');if(!e.disabled){e.checked=true;}" onmouseenter="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_?');if(!e.disabled){e.checked=true;}}" onmousedown="if(event.buttons&1 != 0){e=document.getElementById('{{$e.ID}}_?');if(!e.disabled){e.checked=true;}}"><input title="{{$e.Display}} - ?" type="radio" id="{{$e.ID}}_?" name="{{$e.ID}}" value="?" {{if $e.Disabled}} disabled {{end}}></td>
 </tr>
 {{end}}
 </tbody>
