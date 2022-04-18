@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -96,10 +96,8 @@ type Format interface {
 // However, there reordering is allowed as long as the order for one questionnaireID / questionID combination is retained.
 // All methods must be save for parallel usage.
 type DataSafe interface {
-	IndicateTransactionStart(questionnaireID string) error   // Can be ignored if no atomic transaction is known. One transaction equals one questionnaire result
-	SaveData(questionnaireID, questionID, data string) error // Must preserve the order of data for a questionnaireID, questionID combination
-	IndicateTransactionEnd(questionnaireID string) error     // Can be ignored if no atomic transaction is known
-	GetData(questionnaireID, questionID string) ([]string, error)
+	SaveData(questionnaireID string, questionID, data []string) error // Must preserve the order of data for a questionnaireID, questionID combination
+	GetData(questionnaireID string, questionID []string) ([][]string, error)
 	LoadConfig(data []byte) error
 	FlushAndClose()
 }

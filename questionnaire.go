@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -90,7 +90,6 @@ type Questionnaire struct {
 	endCache     []byte
 	id           string
 	allQuestions []registry.Question
-	saveMutex    *sync.Mutex // Ensure saving does not mix up
 }
 
 type questionnaireTemplatePageStruct struct {
@@ -184,15 +183,23 @@ func (q Questionnaire) GetResults() ([]template.HTML, error) {
 		return nil, fmt.Errorf("can not get datasafe %s", config.DataSafe)
 	}
 
+	ids := make([]string, len(q.allQuestions))
+	for i := range q.allQuestions {
+		ids[i] = q.allQuestions[i].GetID()
+	}
+
+	data, err := safe.GetData(q.id, ids)
+	if len(data) != len(ids) {
+		return nil, fmt.Errorf("datasafe returned %d question data, expected was %d", len(data), len(ids))
+	}
+	if err != nil {
+		return nil, err
+	}
+
 	result := make([]template.HTML, 0, len(q.allQuestions))
 
 	for i := range q.allQuestions {
-		data, err := safe.GetData(q.id, q.allQuestions[i].GetID())
-		if err != nil {
-			return nil, err
-		}
-
-		result = append(result, q.allQuestions[i].GetStatisticsDisplay(data))
+		result = append(result, q.allQuestions[i].GetStatisticsDisplay(data[i]))
 	}
 
 	return result, nil
@@ -205,10 +212,21 @@ func (q Questionnaire) WriteZip(w io.Writer) error {
 		return fmt.Errorf("can not get datasafe %s", config.DataSafe)
 	}
 
+	ids := make([]string, len(q.allQuestions))
+	for i := range q.allQuestions {
+		ids[i] = q.allQuestions[i].GetID()
+	}
+
+	data, err := safe.GetData(q.id, ids)
+	if len(data) != len(ids) {
+		return fmt.Errorf("datasafe returned %d question data, expected was %d", len(data), len(ids))
+	}
+	if err != nil {
+		return err
+	}
+
 	result := zip.NewWriter(w)
 
-	q.saveMutex.Lock()
-	defer q.saveMutex.Unlock()
 	for i := range q.allQuestions {
 		f, err := result.Create(strings.Join([]string{q.allQuestions[i].GetID(), "csv"}, "."))
 		if err != nil {
@@ -221,12 +239,11 @@ func (q Questionnaire) WriteZip(w io.Writer) error {
 			return err
 		}
 
-		data, err := safe.GetData(q.id, q.allQuestions[i].GetID())
 		if err != nil {
 			return err
 		}
 
-		r := q.allQuestions[i].GetStatistics(data)
+		r := q.allQuestions[i].GetStatistics(data[i])
 		err = csv.WriteAll(r)
 		if err != nil {
 			return csv.Error()
@@ -243,29 +260,34 @@ func (q Questionnaire) WriteCSV(w io.Writer) error {
 		return fmt.Errorf("can not get datasafe %s", config.DataSafe)
 	}
 
+	ids := make([]string, len(q.allQuestions))
+	for i := range q.allQuestions {
+		ids[i] = q.allQuestions[i].GetID()
+	}
+
+	data, err := safe.GetData(q.id, ids)
+	if len(data) != len(ids) {
+		return fmt.Errorf("datasafe returned %d question data, expected was %d", len(data), len(ids))
+	}
+	if err != nil {
+		return err
+	}
+
 	csv := csv.NewWriter(w)
 
 	header := make([]string, 0)
 	result := make([][][]string, len(q.allQuestions))
 	maxLength := 0
-
-	q.saveMutex.Lock()
-	defer q.saveMutex.Unlock()
 	for i := range q.allQuestions {
 		header = append(header, q.allQuestions[i].GetStatisticsHeader()...)
 
-		data, err := safe.GetData(q.id, q.allQuestions[i].GetID())
-		if err != nil {
-			return err
-		}
-
-		result[i] = q.allQuestions[i].GetStatistics(data)
+		result[i] = q.allQuestions[i].GetStatistics(data[i])
 		if len(result[i]) > maxLength {
 			maxLength = len(result[i])
 		}
 	}
 
-	err := csv.Write(helper.EscapeCSVLine(header))
+	err = csv.Write(helper.EscapeCSVLine(header))
 	if err != nil {
 		return err
 	}
@@ -361,22 +383,23 @@ func (q Questionnaire) SaveData(r *http.Request) error {
 		}
 	}
 
-	// We need to ensure the order is preserved and that parallel execution does not mess it up
-	q.saveMutex.Lock()
-	defer q.saveMutex.Unlock()
+	questionID := make([]string, len(q.allQuestions))
+	data := make([]string, len(q.allQuestions))
 	for i := range q.allQuestions {
 		m, ok := results[q.allQuestions[i].GetID()]
 		if !ok {
 			m = make(map[string][]string)
 		}
-		s := q.allQuestions[i].GetDatabaseEntry(m)
-		err := safe.SaveData(q.id, q.allQuestions[i].GetID(), s)
-		if err != nil {
-			log.Printf("save data: Can not save questionnaire data for '%s - %s': %s", q.id, q.allQuestions[i].GetID(), err.Error())
-		}
+		questionID[i] = q.allQuestions[i].GetID()
+		data[i] = q.allQuestions[i].GetDatabaseEntry(m)
 	}
 
-	return nil
+	err := safe.SaveData(q.id, questionID, data)
+	if err != nil {
+		log.Printf("save data: Can not save questionnaire data for '%s': %s", q.id, err.Error())
+	}
+
+	return err
 }
 
 // LoadQuestionnaire loads a single questionnaire from a file.
@@ -492,9 +515,6 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 
 	// ID
 	q.id = key
-
-	// mutex
-	q.saveMutex = new(sync.Mutex)
 
 	return q, nil
 }

@@ -1,7 +1,7 @@
 //go:build mysql
 
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2021 Marcus Soll
+// Copyright 2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"sync"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -31,7 +30,6 @@ import (
 
 func init() {
 	m := &mySQL{}
-	m.txCacheMutex = new(sync.Mutex)
 	err := registry.RegisterDataSafe(m, "MySQL")
 	if err != nil {
 		log.Panicln(err)
@@ -48,13 +46,11 @@ var ErrMySQLIDtooLong = errors.New("mysql: id is too long")
 var ErrMySQLNotConfigured = errors.New("mysql: usage before configuration is used")
 
 type mySQL struct {
-	dsn          string
-	db           *sql.DB
-	txCache      map[string]*sql.Tx
-	txCacheMutex *sync.Mutex
+	dsn string
+	db  *sql.DB
 }
 
-func (m *mySQL) IndicateTransactionStart(questionnaireID string) error {
+func (m *mySQL) SaveData(questionnaireID string, questionID, data []string) error {
 	if m.db == nil {
 		return ErrMySQLNotConfigured
 	}
@@ -63,74 +59,45 @@ func (m *mySQL) IndicateTransactionStart(questionnaireID string) error {
 		return ErrMySQLIDtooLong
 	}
 
-	m.txCacheMutex.Lock()
-	defer m.txCacheMutex.Unlock()
+	if len(questionID) != len(data) {
+		return fmt.Errorf("mysql: len(questionID)=%d does not match len(data)=%d", len(questionID), len(data))
+	}
 
-	var err error
-
-	tx := m.txCache[questionnaireID]
-	if tx == nil {
-		tx, err = m.db.Begin()
-		if err != nil {
-			return err
+	for i := range questionID {
+		if len(questionID[i]) > MySQLMaxLengthID {
+			return ErrMySQLIDtooLong
 		}
-		m.txCache[questionnaireID] = tx
 	}
 
-	return nil
-}
-
-func (m *mySQL) SaveData(questionnaireID, questionID, data string) error {
-	if m.db == nil {
-		return ErrMySQLNotConfigured
-	}
-
-	if len(questionnaireID) > MySQLMaxLengthID {
-		return ErrMySQLIDtooLong
-	}
-
-	if len(questionID) > MySQLMaxLengthID {
-		return ErrMySQLIDtooLong
-	}
-
-	m.txCacheMutex.Lock()
-	tx := m.txCache[questionnaireID]
-	m.txCacheMutex.Unlock()
-
-	if tx != nil {
-		_, err := tx.Exec("INSERT INTO data (questionnaire, question, data) VALUES (?,?,?)", questionnaireID, questionID, data)
+	tx, err := m.db.Begin()
+	if err != nil {
 		return err
 	}
 
-	_, err := m.db.Exec("INSERT INTO data (questionnaire, question, data) VALUES (?,?,?)", questionnaireID, questionID, data)
+	successful := false
 
-	return err
-}
+	defer func() {
+		if !successful {
+			err := tx.Rollback()
+			if err != nil {
+				log.Printf("mysql: can not rollback transaction: %s", err.Error())
+			}
+		}
+	}()
 
-func (m *mySQL) IndicateTransactionEnd(questionnaireID string) error {
-	if m.db == nil {
-		return ErrMySQLNotConfigured
-	}
-
-	if len(questionnaireID) > MySQLMaxLengthID {
-		return ErrMySQLIDtooLong
-	}
-
-	m.txCacheMutex.Lock()
-	tx := m.txCache[questionnaireID]
-	m.txCache[questionnaireID] = nil
-	m.txCacheMutex.Unlock()
-
-	var err error
-
-	if tx != nil {
-		err = tx.Commit()
+	for i := range questionID {
+		_, err := tx.Exec("INSERT INTO data (questionnaire, question, data) VALUES (?,?,?)", questionnaireID, questionID[i], data[i])
 		if err != nil {
-			tx.Rollback()
 			return err
 		}
 	}
 
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	successful = true
 	return nil
 }
 
@@ -144,7 +111,7 @@ func (m *mySQL) LoadConfig(data []byte) error {
 	return nil
 }
 
-func (m *mySQL) GetData(questionnaireID, questionID string) ([]string, error) {
+func (m *mySQL) GetData(questionnaireID string, questionID []string) ([][]string, error) {
 	if m.db == nil {
 		return nil, ErrMySQLNotConfigured
 	}
@@ -157,24 +124,30 @@ func (m *mySQL) GetData(questionnaireID, questionID string) ([]string, error) {
 		return nil, ErrMySQLIDtooLong
 	}
 
-	rows, err := m.db.Query("SELECT data FROM data WHERE questionnaire=? AND question=? ORDER BY id ASC", questionnaireID, questionID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+	result := make([][]string, len(questionID))
 
-	data := make([]string, 0)
-
-	for rows.Next() {
-		var s string
-		err = rows.Scan(&s)
+	for i := range questionID {
+		rows, err := m.db.Query("SELECT data FROM data WHERE questionnaire=? AND question=? ORDER BY id ASC", questionnaireID, questionID[i])
 		if err != nil {
 			return nil, err
 		}
-		data = append(data, s)
+
+		data := make([]string, 0)
+
+		for rows.Next() {
+			var s string
+			err = rows.Scan(&s)
+			if err != nil {
+				rows.Close()
+				return nil, err
+			}
+			data = append(data, s)
+		}
+		result[i] = data
+		rows.Close()
 	}
 
-	return data, nil
+	return result, nil
 }
 
 func (m *mySQL) FlushAndClose() {

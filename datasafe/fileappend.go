@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import (
 func init() {
 	fa := &fileAppend{}
 	fa.newPath = make(chan string)
-	fa.data = make(chan fileAppendResult)
+	fa.data = make(chan []fileAppendResult)
 	fa.close = make(chan bool)
 	fa.isClosed = make(chan bool)
 	err := registry.RegisterDataSafe(fa, "fileappend")
@@ -68,21 +68,25 @@ type fileAppend struct {
 	mutex    sync.Mutex
 	start    sync.Once
 	newPath  chan string
-	data     chan fileAppendResult
+	data     chan []fileAppendResult
 	close    chan bool
 	isClosed chan bool
 }
 
-func (fa *fileAppend) IndicateTransactionStart(questionnaireID string) error {
-	return nil
-}
+func (fa *fileAppend) SaveData(questionnaireID string, questionID, data []string) error {
 
-func (fa *fileAppend) SaveData(questionnaireID, questionID, data string) error {
-	fa.data <- fileAppendResult{questionnaireID, questionID, data}
-	return nil
-}
+	if len(questionID) != len(data) {
+		return fmt.Errorf("FileAppend: len(questionID)=%d does not match len(data)=%d", len(questionID), len(data))
+	}
 
-func (fa *fileAppend) IndicateTransactionEnd(questionnaireID string) error {
+	d := make([]fileAppendResult, len(questionID))
+	for i := range questionID {
+		d[i].questionnaireID = questionnaireID
+		d[i].questionID = questionID[i]
+		d[i].data = data[i]
+	}
+
+	fa.data <- d
 	return nil
 }
 
@@ -95,9 +99,25 @@ func (fa *fileAppend) LoadConfig(data []byte) error {
 	return nil
 }
 
-func (fa *fileAppend) GetData(questionnaireID, questionID string) ([]string, error) {
+func (fa *fileAppend) GetData(questionnaireID string, questionID []string) ([][]string, error) {
 	fa.mutex.Lock()
 	defer fa.mutex.Unlock()
+
+	var err error
+
+	result := make([][]string, len(questionID))
+	for i := range questionID {
+		result[i], err = fa.getSingleDataUnsafeParallel(questionnaireID, questionID[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
+}
+
+func (fa *fileAppend) getSingleDataUnsafeParallel(questionnaireID, questionID string) ([]string, error) {
+	// Caller must lock
+
 	b, err := os.ReadFile(filepath.Join(fa.path, questionnaireID, questionID))
 	if os.IsNotExist(err) {
 		// No data was written - thats ok
@@ -155,7 +175,7 @@ func (fa *fileAppend) fileappendWorker() {
 				fmt.Printf("FileAppend: Not saving result - worker not running (%v)", d)
 				continue
 			}
-			buffer = append(buffer, d)
+			buffer = append(buffer, d...)
 		case <-tick.C:
 			func() {
 				fa.mutex.Lock()
