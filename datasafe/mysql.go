@@ -124,10 +124,17 @@ func (m *mySQL) GetData(questionnaireID string, questionID []string) ([][]string
 		return nil, ErrMySQLIDtooLong
 	}
 
+	tx, err := m.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	defer tx.Commit()
+
 	result := make([][]string, len(questionID))
 
 	for i := range questionID {
-		rows, err := m.db.Query("SELECT data FROM data WHERE questionnaire=? AND question=? ORDER BY id ASC", questionnaireID, questionID[i])
+		rows, err := tx.Query("SELECT data FROM data WHERE questionnaire=? AND question=? ORDER BY id ASC", questionnaireID, questionID[i])
 		if err != nil {
 			return nil, err
 		}
