@@ -16,9 +16,6 @@ To run it, simply use the following commands:
 go build
 ./questiongo
 
-To build the SQLite backend, you have to use the following build command:
-go build -tags="sqlite"
-
 To build the MySQL / MariaDB backend, you have to use the following build command:
 go build -tags="mysql"
 
