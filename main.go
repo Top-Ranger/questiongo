@@ -85,8 +85,11 @@ func printInfo() {
 		return
 	}
 
+	log.Printf("- go version: %s", bi.GoVersion)
 	for _, s := range bi.Settings {
 		switch s.Key {
+		case "-tags":
+			log.Printf("- build tags: %s", s.Value)
 		case "vcs.revision":
 			l := 7
 			if len(s.Value) > 7 {
