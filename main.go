@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"strings"
 	"syscall"
 	"time"
@@ -76,7 +77,30 @@ func loadConfig(path string) (Config, error) {
 	return c, nil
 }
 
+func printInfo() {
+	log.Println("QuestionGo!")
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		log.Print("- no build info found")
+		return
+	}
+
+	for _, s := range bi.Settings {
+		switch s.Key {
+		case "vcs.revision":
+			l := 7
+			if len(s.Value) > 7 {
+				s.Value = s.Value[:l]
+			}
+			log.Printf("- commit: %s", s.Value)
+		case "vcs.modified":
+			log.Printf("- files modified: %s", s.Value)
+		}
+	}
+}
+
 func main() {
+	printInfo()
 	rand.Seed(time.Now().Unix())
 
 	configPath := flag.String("config", "./config/config.json", "Path to json config for QuestionGo!")
