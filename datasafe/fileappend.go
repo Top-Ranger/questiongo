@@ -142,17 +142,21 @@ func (fa *fileAppend) FlushAndClose() {
 }
 
 func (fa *fileAppend) fileappendWorker() {
+	workerLock := sync.Mutex{}
 	buffer := fileAppendResultBuffer(make([]fileAppendResult, 0, 10))
 	tick := time.NewTicker(5 * time.Second)
+	flushTries := 0
 	running := false
 	closeWorker := false
 	for {
 		select {
 		case <-fa.close:
+			workerLock.Lock()
 			if !closeWorker {
 				log.Printf("FileAppend: starting flush")
 				closeWorker = true
 			}
+			workerLock.Unlock()
 		case p := <-fa.newPath:
 			if closeWorker {
 				log.Printf("FileAppend: Ignoring new path %s since close has been called.", p)
@@ -161,6 +165,8 @@ func (fa *fileAppend) fileappendWorker() {
 			func() {
 				fa.mutex.Lock()
 				defer fa.mutex.Unlock()
+				workerLock.Lock()
+				defer workerLock.Unlock()
 				fa.path = p
 				err := os.MkdirAll(fa.path, os.ModePerm)
 				if err != nil {
@@ -175,65 +181,78 @@ func (fa *fileAppend) fileappendWorker() {
 				fmt.Printf("FileAppend: Not saving result - worker not running (%v)", d)
 				continue
 			}
+			workerLock.Lock()
 			buffer = append(buffer, d...)
+			workerLock.Unlock()
 		case <-tick.C:
-			func() {
-				fa.mutex.Lock()
-				defer fa.mutex.Unlock()
-				sort.Stable(buffer) // We need to preserve the order of the answers
-				for i := 0; i < len(buffer); i++ {
-					err := os.MkdirAll(filepath.Join(fa.path, buffer[i].questionnaireID), os.ModePerm)
-					if err != nil {
-						log.Printf("FileAppend: Can not create %s: %s", filepath.Join(fa.path, buffer[i].questionnaireID), err.Error())
-						running = false
-						return
-					}
+			flushTries++
+			locked := fa.mutex.TryLock()
+			if locked || flushTries > 10 || closeWorker {
+				if !locked {
+					fa.mutex.Lock()
+				}
 
-					func() {
-						path := filepath.Join(fa.path, buffer[i].questionnaireID, buffer[i].questionID)
-						f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
+				go func() {
+					defer fa.mutex.Unlock()
+					workerLock.Lock()
+					b := buffer
+					newLen := len(buffer) * 2
+					if newLen < 10 {
+						newLen = 10
+					}
+					buffer = make([]fileAppendResult, 0, newLen)
+					workerLock.Unlock()
+
+					sort.Stable(b) // We need to preserve the order of the answers
+					for i := 0; i < len(b); i++ {
+						err := os.MkdirAll(filepath.Join(fa.path, b[i].questionnaireID), os.ModePerm)
 						if err != nil {
-							log.Printf("FileAppend: Can not create %s: %s", path, err.Error())
+							log.Printf("FileAppend: Can not create %s: %s", filepath.Join(fa.path, b[i].questionnaireID), err.Error())
 							running = false
 							return
 						}
-						defer f.Close()
 
-						write := true
-						for write {
-							write = false
-							s := strings.ReplaceAll(buffer[i].data, "󰀕", "") // Remove invalid characters. This are not allowed to be used anyway
-							s = strings.ReplaceAll(s, "\n", "󰀕")
-							_, err = f.Write([]byte(s))
+						func() {
+							path := filepath.Join(fa.path, b[i].questionnaireID, b[i].questionID)
+							f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, os.ModePerm)
 							if err != nil {
-								log.Printf("FileAppend: Can not write to %s: %s", path, err.Error())
+								log.Printf("FileAppend: Can not create %s: %s", path, err.Error())
 								running = false
 								return
 							}
-							_, err = f.Write([]byte("\n"))
-							if err != nil {
-								log.Printf("FileAppend: Can not write to %s: %s", path, err.Error())
-								running = false
-								return
+							defer f.Close()
+
+							write := true
+							for write {
+								write = false
+								s := strings.ReplaceAll(b[i].data, "󰀕", "") // Remove invalid characters. This are not allowed to be used anyway
+								s = strings.ReplaceAll(s, "\n", "󰀕")
+								_, err = f.Write([]byte(s))
+								if err != nil {
+									log.Printf("FileAppend: Can not write to %s: %s", path, err.Error())
+									running = false
+									return
+								}
+								_, err = f.Write([]byte("\n"))
+								if err != nil {
+									log.Printf("FileAppend: Can not write to %s: %s", path, err.Error())
+									running = false
+									return
+								}
+								for i < len(b)-1 && b[i+1].questionnaireID == b[i].questionnaireID && b[i+1].questionID == b[i].questionID {
+									write = true
+									i++
+								}
 							}
-							for i < len(buffer)-1 && buffer[i+1].questionnaireID == buffer[i].questionnaireID && buffer[i+1].questionID == buffer[i].questionID {
-								write = true
-								i++
-							}
-						}
-					}()
-				}
-				newLen := len(buffer) * 2
-				if newLen < 10 {
-					newLen = 10
-				}
-				buffer = make([]fileAppendResult, 0, newLen)
-			}()
-			if closeWorker {
-				log.Printf("FileAppend: flushed")
-				fa.isClosed <- true
-				close(fa.isClosed)
-				return
+						}()
+					}
+					if closeWorker {
+						log.Printf("FileAppend: flushed")
+						fa.isClosed <- true
+						close(fa.isClosed)
+						return
+					}
+				}()
 			}
 		}
 	}
