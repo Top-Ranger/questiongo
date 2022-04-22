@@ -188,11 +188,12 @@ func (fa *fileAppend) fileappendWorker() {
 			flushTries++
 			locked := fa.mutex.TryLock()
 			if locked || flushTries > 10 || closeWorker {
-				if !locked {
-					fa.mutex.Lock()
-				}
+				flushTries = 0
 
-				go func() {
+				go func(mutexLocked bool) {
+					if !mutexLocked {
+						fa.mutex.Lock()
+					}
 					defer fa.mutex.Unlock()
 					workerLock.Lock()
 					b := buffer
@@ -252,7 +253,7 @@ func (fa *fileAppend) fileappendWorker() {
 						close(fa.isClosed)
 						return
 					}
-				}()
+				}(locked)
 			}
 		}
 	}
