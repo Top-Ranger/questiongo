@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -107,6 +108,9 @@ func (m *mySQL) LoadConfig(data []byte) error {
 	if err != nil {
 		return fmt.Errorf("mysql: can not open '%s': %w", m.dsn, err)
 	}
+	db.SetConnMaxLifetime(time.Minute * 1)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
 	m.db = db
 	return nil
 }
