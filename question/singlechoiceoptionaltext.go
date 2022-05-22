@@ -93,12 +93,14 @@ var singlechoiceoptionaltextStatisticsTemplate = template.Must(template.New("sin
 <thead>
 <tr>
 <th>Question</th>
+<th>Answer (Number)</th>
 <th>Answer (percentage)</th>
 </tr>
 </thead>
 {{range $i, $e := .Data }}
 <tr>
 <td>{{$e.Question}}</td>
+<td>{{$e.Number}}</td>
 <td>{{printf "%.2f" $e.Result}}</td>
 </tr>
 {{end}}
@@ -137,6 +139,7 @@ type singlechoiceoptionaltextStatisticTemplateStruct struct {
 type singlechoiceoptionaltextStatisticsTemplateStructInner struct {
 	Question template.HTML
 	Result   float64
+	Number   int
 }
 
 type singlechoiceoptionaltextTemplateStruct struct {
@@ -276,6 +279,7 @@ func (sc singleChoiceOptionalText) GetStatisticsDisplay(data []string) template.
 		inner := singlechoiceoptionaltextStatisticsTemplateStructInner{
 			Question: question,
 			Result:   float64(countAnswer[i]) / float64(count),
+			Number:   countAnswer[i],
 		}
 		td.Data = append(td.Data, inner)
 	}
@@ -285,6 +289,7 @@ func (sc singleChoiceOptionalText) GetStatisticsDisplay(data []string) template.
 		inner := singlechoiceoptionaltextStatisticsTemplateStructInner{
 			Question: "[no answer]",
 			Result:   float64(countAnswer[len(sc.Answers)]) / float64(count),
+			Number:   countAnswer[len(sc.Answers)],
 		}
 		td.Data = append(td.Data, inner)
 	}

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,12 +84,14 @@ var numberStatisticsTemplate = template.Must(template.New("numberStatisticTempla
 <tr>
 <th>Value</th>
 <th>Number</th>
+<th>Percent</th>
 </tr>
 </thead>
 {{range $i, $e := .Data }}
 <tr>
 <td>{{$e.Value}}</td>
 <td>{{$e.Number}}</td>
+<td>{{printf "%.2f" $e.Percent}}</td>
 </tr>
 {{end}}
 <tr>
@@ -126,8 +128,9 @@ type numberTemplateStruct struct {
 }
 
 type numberStatisticTemplateStructInner struct {
-	Value  int
-	Number int
+	Value   int
+	Number  int
+	Percent float64
 }
 
 type numberStatisticTemplateStruct struct {
@@ -250,7 +253,7 @@ func (n numberQuestion) GetStatisticsDisplay(data []string) template.HTML {
 	}
 
 	for k := range answer {
-		td.Data = append(td.Data, numberStatisticTemplateStructInner{Value: k, Number: answer[k]})
+		td.Data = append(td.Data, numberStatisticTemplateStructInner{Value: k, Number: answer[k], Percent: float64(answer[k]) / float64(td.Count)})
 	}
 
 	sort.Sort(numberStatisticTemplateStructInnerSort(td.Data))

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,6 +72,7 @@ var displayRandomGroupStatisticsTemplate = template.Must(template.New("displayRa
 <tr>
 <th>Group</th>
 <th>Number</th>
+<th>Percent</th>
 </tr>
 </thead>
 <tbody>
@@ -79,6 +80,7 @@ var displayRandomGroupStatisticsTemplate = template.Must(template.New("displayRa
 <tr>
 <td>{{$e.Group}}</td>
 <td>{{$e.Result}}</td>
+<td>{{printf "%.2f" $e.Percent}}</td>
 </tr>
 {{end}}
 </tbody>
@@ -100,8 +102,9 @@ type displayRandomGroupStatisticsTemplateStruct struct {
 }
 
 type displayRandomGroupStatisticsTemplateStructInner struct {
-	Group  string
-	Result int
+	Group   string
+	Result  int
+	Percent float64
 }
 
 type displayRandomGroup struct {
@@ -146,12 +149,14 @@ func (drg displayRandomGroup) GetStatistics(data []string) [][]string {
 }
 
 func (drg displayRandomGroup) GetStatisticsDisplay(data []string) template.HTML {
+	count := 0
 	countAnswer := make([]int, len(drg.Text))
 
 	for d := range data {
 		for i := range drg.Text {
 			if data[d] == drg.Text[i][0] {
 				countAnswer[i]++
+				count++
 				break
 			}
 		}
@@ -167,8 +172,9 @@ func (drg displayRandomGroup) GetStatisticsDisplay(data []string) template.HTML 
 		v[i].Label = string(drg.Text[i][0])
 		v[i].Value = float64(countAnswer[i])
 		inner := displayRandomGroupStatisticsTemplateStructInner{
-			Group:  drg.Text[i][0],
-			Result: countAnswer[i],
+			Group:   drg.Text[i][0],
+			Result:  countAnswer[i],
+			Percent: float64(countAnswer[i]) / float64(count),
 		}
 		td.Data = append(td.Data, inner)
 	}

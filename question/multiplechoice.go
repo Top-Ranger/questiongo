@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -74,6 +74,7 @@ var multiplechoiceStatisticsTemplate = template.Must(template.New("multiplechoic
 <thead>
 <tr>
 <th>Question</th>
+<th>Answer (number)</th>
 <th>Answer (percentage)</th>
 </tr>
 </thead>
@@ -82,6 +83,7 @@ var multiplechoiceStatisticsTemplate = template.Must(template.New("multiplechoic
 <tr>
 <td>{{$e.Question}}</td>
 <td>{{$e.Result}}</td>
+<td>{{printf "%.2f" $e.Percent}}</td>
 </tr>
 {{end}}
 <tr>
@@ -110,6 +112,7 @@ type multiplechoiceStatisticTemplateStruct struct {
 type multiplechoiceStatisticsTemplateStructInner struct {
 	Question template.HTML
 	Result   int
+	Percent  float64
 }
 
 type multiplechoiceTemplateStruct struct {
@@ -232,6 +235,7 @@ func (mc multipleChoice) GetStatisticsDisplay(data []string) template.HTML {
 		inner := multiplechoiceStatisticsTemplateStructInner{
 			Question: question,
 			Result:   countAnswer[i],
+			Percent:  float64(countAnswer[i]) / float64(td.Sum),
 		}
 		td.Data = append(td.Data, inner)
 	}

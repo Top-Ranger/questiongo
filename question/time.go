@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,14 +63,20 @@ var timeStatisticsTemplate = template.Must(template.New("timeStatisticTemplate")
 <tr>
 <th>Time</th>
 <th>Number</th>
+<th>Percent</th>
 </tr>
 </thead>
 {{range $i, $e := .Data }}
 <tr>
 <td {{if $e.Special}}class="th-cell"{{end}}>{{$e.Time}}</td>
 <td>{{$e.Number}}</td>
+<td>{{printf "%.2f" $e.Percent}}</td>
 </tr>
 {{end}}
+<tr>
+<td class="th-cell">[number answers]</td>
+<td>{{.Sum}}</td>
+</tr>
 </tbody>
 </table>
 <br>
@@ -87,12 +93,14 @@ type timeStatisticTemplateStructInner struct {
 	Time    string
 	Number  int
 	Special bool
+	Percent float64
 }
 
 type timeStatisticTemplateStruct struct {
 	Question template.HTML
 	Data     []timeStatisticTemplateStructInner
 	Image    template.HTML
+	Sum      int
 }
 type timeStatisticTemplateStructInnerSort []timeStatisticTemplateStructInner
 
@@ -153,23 +161,27 @@ func (t timeQuestion) GetStatisticsDisplay(data []string) template.HTML {
 	f, _ := registry.GetFormatType(t.Format)
 	answer := make(map[string]int)
 
-	for i := range data {
-		if data[i] == "" {
-			answer["[no answer]"]++
-		} else if strings.HasPrefix(data[i], "[invalid input]") {
-			answer["[invalid input]"]++
-		} else {
-			answer[data[i]]++
-		}
-	}
-
 	td := timeStatisticTemplateStruct{
 		Question: f.Format([]byte(t.Question)),
 		Data:     make([]timeStatisticTemplateStructInner, 0, len(answer)),
+		Sum:      0,
+	}
+
+	for i := range data {
+		if data[i] == "" {
+			answer["[no answer]"]++
+			td.Sum++
+		} else if strings.HasPrefix(data[i], "[invalid input]") {
+			answer["[invalid input]"]++
+			td.Sum++
+		} else {
+			answer[data[i]]++
+			td.Sum++
+		}
 	}
 
 	for k := range answer {
-		td.Data = append(td.Data, timeStatisticTemplateStructInner{Time: k, Number: answer[k], Special: strings.HasPrefix(string(k), "[")})
+		td.Data = append(td.Data, timeStatisticTemplateStructInner{Time: k, Number: answer[k], Special: strings.HasPrefix(string(k), "["), Percent: float64(answer[k]) / float64(td.Sum)})
 	}
 
 	sort.Sort(timeStatisticTemplateStructInnerSort(td.Data))

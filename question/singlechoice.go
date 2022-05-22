@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,12 +73,14 @@ var singlechoiceStatisticsTemplate = template.Must(template.New("singlechoiceSta
 <thead>
 <tr>
 <th>Question</th>
+<th>Answer (Number)</th>
 <th>Answer (percentage)</th>
 </tr>
 </thead>
 {{range $i, $e := .Data }}
 <tr>
 <td>{{$e.Question}}</td>
+<td>{{$e.Number}}</td>
 <td>{{printf "%.2f" $e.Result}}</td>
 </tr>
 {{end}}
@@ -103,6 +105,7 @@ type singlechoiceStatisticTemplateStruct struct {
 type singlechoiceStatisticsTemplateStructInner struct {
 	Question template.HTML
 	Result   float64
+	Number   int
 }
 
 type singlechoiceTemplateStruct struct {
@@ -200,6 +203,7 @@ func (sc singleChoice) GetStatisticsDisplay(data []string) template.HTML {
 		inner := singlechoiceStatisticsTemplateStructInner{
 			Question: question,
 			Result:   float64(countAnswer[i]) / float64(count),
+			Number:   countAnswer[i],
 		}
 		td.Data = append(td.Data, inner)
 	}
@@ -209,6 +213,7 @@ func (sc singleChoice) GetStatisticsDisplay(data []string) template.HTML {
 		inner := singlechoiceStatisticsTemplateStructInner{
 			Question: "[no answer]",
 			Result:   float64(countAnswer[len(sc.Answers)]) / float64(count),
+			Number:   countAnswer[len(sc.Answers)],
 		}
 		td.Data = append(td.Data, inner)
 	}
