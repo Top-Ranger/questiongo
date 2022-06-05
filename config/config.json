@@ -9,5 +9,7 @@
     "DataSafe": "fileappend",
     "DataSafeConfig": "config/datasafe-fileappend",
     "LogFailedLogin": true,
-    "ServerPath": "/"
+    "ServerPath": "/",
+    "ReloadPasswordsMethod": "plain",
+    "ReloadPasswords": []
  }

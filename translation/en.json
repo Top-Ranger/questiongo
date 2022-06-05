@@ -33,5 +33,6 @@
     "WeekdayThursday": "Thursday",
     "WeekdayFriday": "Friday",
     "WeekdaySaturday": "Saturday",
-    "WeekdaySunday": "Sunday"
+    "WeekdaySunday": "Sunday",
+    "ReloadSurveys": "Reload surveys"
 }

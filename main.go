@@ -40,17 +40,19 @@ import (
 
 // Config represents the configuration of QuestionGo!
 type Config struct {
-	Language        string
-	Address         string
-	PathImpressum   string
-	FormatImpressum string
-	PathDSGVO       string
-	FormatDSGVO     string
-	DataFolder      string
-	DataSafe        string
-	DataSafeConfig  string
-	LogFailedLogin  bool
-	ServerPath      string
+	Language              string
+	Address               string
+	PathImpressum         string
+	FormatImpressum       string
+	PathDSGVO             string
+	FormatDSGVO           string
+	DataFolder            string
+	DataSafe              string
+	DataSafeConfig        string
+	LogFailedLogin        bool
+	ServerPath            string
+	ReloadPasswordsMethod string
+	ReloadPasswords       []string
 }
 
 var config Config
@@ -73,6 +75,11 @@ func loadConfig(path string) (Config, error) {
 		c.ServerPath = strings.Join([]string{"/", c.ServerPath}, "")
 	}
 	c.ServerPath = strings.TrimSuffix(c.ServerPath, "/")
+
+	ok := registry.PasswordMethodExists(c.ReloadPasswordsMethod)
+	if !ok {
+		return c, errors.New(fmt.Sprintln("Unknown password method for reload:", c.ReloadPasswordsMethod))
+	}
 
 	return c, nil
 }

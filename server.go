@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,10 +43,12 @@ var rootPath string
 
 var resultsTemplate *template.Template
 var resultsAccessTemplate *template.Template
+var reloadTemplate *template.Template
 
 var dsgvo []byte
 var impressum []byte
 
+var questionnairesLock sync.RWMutex
 var questionnaires map[string]Questionnaire
 
 //go:embed static font js css
@@ -70,6 +72,11 @@ func init() {
 	}
 
 	cssTemplates, err = template.ParseFS(cachedFiles, "css/*")
+	if err != nil {
+		panic(err)
+	}
+
+	reloadTemplate, err = template.ParseFS(templateFiles, "template/reload.html")
 	if err != nil {
 		panic(err)
 	}
@@ -200,12 +207,15 @@ func initialiseServer() error {
 	})
 
 	// Questionnaires
+	questionnairesLock.Lock()
 	questionnaires, err = LoadAllQuestionnaires(config.DataFolder)
+	questionnairesLock.Unlock()
 	if err != nil {
 		return err
 	}
 	http.HandleFunc(strings.Join([]string{config.ServerPath, "/answer.html"}, ""), answerHandle)
 	http.HandleFunc(strings.Join([]string{config.ServerPath, "/results.html"}, ""), resultsHandle)
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/reload.html"}, ""), reloadHandle)
 	http.HandleFunc(strings.Join([]string{config.ServerPath, "/results.zip"}, ""), zipHandle)
 	http.HandleFunc(strings.Join([]string{config.ServerPath, "/results.csv"}, ""), csvHandle)
 	http.HandleFunc("/", questionnaireHandle)
@@ -232,7 +242,9 @@ func questionnaireHandle(rw http.ResponseWriter, r *http.Request) {
 	}
 	key = strings.TrimPrefix(key, config.ServerPath)
 	key = strings.TrimLeft(key, "/")
+	questionnairesLock.RLock()
 	q, ok := questionnaires[key]
+	questionnairesLock.RUnlock()
 	if !ok {
 		rw.WriteHeader(http.StatusNotFound)
 		translationStruct := translation.GetDefaultTranslation()
@@ -270,7 +282,9 @@ func questionnaireHandle(rw http.ResponseWriter, r *http.Request) {
 func answerHandle(rw http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	id := query.Get("id")
+	questionnairesLock.RLock()
 	q, ok := questionnaires[id]
+	questionnairesLock.RUnlock()
 	if !ok {
 		rw.WriteHeader(http.StatusNotFound)
 		translationStruct := translation.GetDefaultTranslation()
@@ -313,7 +327,9 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 		key := r.Form.Get("key")
 		pw := r.Form.Get("pw")
 
+		questionnairesLock.RLock()
 		q, ok := questionnaires[key]
+		questionnairesLock.RUnlock()
 		if !ok {
 			if config.LogFailedLogin {
 				log.Printf("Failed login from %s", helper.GetRealIP(r))
@@ -386,7 +402,9 @@ func zipHandle(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	questionnairesLock.RLock()
 	q, ok := questionnaires[key]
+	questionnairesLock.RUnlock()
 	if !ok {
 		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation(), config.ServerPath})
 		return
@@ -421,7 +439,9 @@ func csvHandle(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	questionnairesLock.RLock()
 	q, ok := questionnaires[key]
+	questionnairesLock.RUnlock()
 	if !ok {
 		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation(), config.ServerPath})
 		return
@@ -434,6 +454,76 @@ func csvHandle(rw http.ResponseWriter, r *http.Request) {
 	err = q.WriteCSV(rw)
 	if err != nil {
 		log.Printf("error sending zip: %s", err.Error())
+		return
+	}
+}
+
+func reloadHandle(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
+	switch r.Method {
+	case http.MethodGet:
+
+		reloadTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation(), config.ServerPath})
+		return
+	case http.MethodPost:
+
+		err := r.ParseForm()
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			rw.Write([]byte(err.Error()))
+			return
+		}
+
+		pw := r.Form.Get("pw")
+		if pw == "" {
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write([]byte(fmt.Sprintf("no password for reload")))
+			return
+		}
+
+		validRequest := false
+		for i := range config.ReloadPasswords {
+			validRequest, err = registry.ComparePasswords(config.ReloadPasswordsMethod, pw, config.ReloadPasswords[i])
+			if err != nil {
+				rw.WriteHeader(http.StatusInternalServerError)
+				rw.Write([]byte(err.Error()))
+				return
+			}
+			if validRequest {
+				break
+			}
+		}
+
+		if !validRequest {
+			if config.LogFailedLogin {
+				log.Printf("Failed login from %s", helper.GetRealIP(r))
+			}
+			rw.WriteHeader(http.StatusForbidden)
+			rw.Write([]byte("403 Forbidden"))
+			return
+		}
+
+		log.Println("Reloading questionnaires")
+
+		q, err := LoadAllQuestionnaires(config.DataFolder)
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			rw.Write([]byte(err.Error()))
+			log.Println(err)
+			return
+		}
+
+		questionnairesLock.Lock()
+		questionnaires = q
+		questionnairesLock.Unlock()
+
+		rw.WriteHeader(http.StatusOK)
+		rw.Write([]byte("200 Ok"))
+
+	default:
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte(fmt.Sprintf("unknown method %s for reload", r.Method)))
 		return
 	}
 }
