@@ -53,6 +53,8 @@ type Config struct {
 	ServerPath            string
 	ReloadPasswordsMethod string
 	ReloadPasswords       []string
+
+	reloadingDisabled bool
 }
 
 var config Config
@@ -76,9 +78,14 @@ func loadConfig(path string) (Config, error) {
 	}
 	c.ServerPath = strings.TrimSuffix(c.ServerPath, "/")
 
-	ok := registry.PasswordMethodExists(c.ReloadPasswordsMethod)
-	if !ok {
-		return c, errors.New(fmt.Sprintln("Unknown password method for reload:", c.ReloadPasswordsMethod))
+	if c.ReloadPasswordsMethod != "" && len(c.ReloadPasswords) != 0 {
+		ok := registry.PasswordMethodExists(c.ReloadPasswordsMethod)
+		if !ok {
+			return c, errors.New(fmt.Sprintln("Unknown password method for reload:", c.ReloadPasswordsMethod))
+		}
+	} else {
+		log.Println("load config: disabling reloading")
+		c.reloadingDisabled = true
 	}
 
 	return c, nil

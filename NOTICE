@@ -24,6 +24,12 @@ A sample questionnaire (containing all features) can be found at 'data/test'.
 Results can be found at the page '/results.html' on the server.
 A questionnaire is expect to hold all information in a single directory.
 
+Please note:
+* Once a survey is started, the questions must not be changed (if they are changed, the behaviour is undefined).
+  The config of a survey might be changed, with the exception of 'Pages'.
+* To reload a survey from command line, you can use a command similar to:
+  curl -X POST -d "pw=SECRETPASSWORD" https://questiongo.example/reload.html
+
 QuestionGo! is licenced under Apache-2.0.
 
 ++++++++++++++++++++++++++++++++++++++++++++

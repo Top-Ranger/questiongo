@@ -62,6 +62,8 @@ type Translation struct {
 	WeekdaySaturday             string
 	WeekdaySunday               string
 	ReloadSurveys               string
+	SurveyReloadSuccessful      string
+	ReloadingDisabled           string
 }
 
 const defaultLanguage = "en"

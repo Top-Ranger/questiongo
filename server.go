@@ -461,6 +461,13 @@ func csvHandle(rw http.ResponseWriter, r *http.Request) {
 func reloadHandle(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
+	if config.reloadingDisabled {
+		rw.WriteHeader(http.StatusNotImplemented)
+		tl := translation.GetDefaultTranslation()
+		textTemplate.Execute(rw, textTemplateStruct{helper.SanitiseString(fmt.Sprintf("<p>%s</p>", tl.ReloadingDisabled)), tl, config.ServerPath})
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 
@@ -475,9 +482,15 @@ func reloadHandle(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		isWebsite := r.Form.Get("website") == "true"
+
 		pw := r.Form.Get("pw")
 		if pw == "" {
 			rw.WriteHeader(http.StatusBadRequest)
+			if isWebsite {
+				reloadTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation(), config.ServerPath})
+				return
+			}
 			rw.Write([]byte(fmt.Sprintf("no password for reload")))
 			return
 		}
@@ -500,6 +513,10 @@ func reloadHandle(rw http.ResponseWriter, r *http.Request) {
 				log.Printf("Failed login from %s", helper.GetRealIP(r))
 			}
 			rw.WriteHeader(http.StatusForbidden)
+			if isWebsite {
+				reloadTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation(), config.ServerPath})
+				return
+			}
 			rw.Write([]byte("403 Forbidden"))
 			return
 		}
@@ -509,7 +526,12 @@ func reloadHandle(rw http.ResponseWriter, r *http.Request) {
 		q, err := LoadAllQuestionnaires(config.DataFolder)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
-			rw.Write([]byte(err.Error()))
+			if isWebsite {
+				tl := translation.GetDefaultTranslation()
+				textTemplate.Execute(rw, textTemplateStruct{helper.SanitiseString(fmt.Sprintf("<p>%s</p>", tl.AnErrorOccured)), tl, config.ServerPath})
+				return
+			}
+			rw.Write([]byte("500 Internal Server Error"))
 			log.Println(err)
 			return
 		}
@@ -519,6 +541,12 @@ func reloadHandle(rw http.ResponseWriter, r *http.Request) {
 		questionnairesLock.Unlock()
 
 		rw.WriteHeader(http.StatusOK)
+		if isWebsite {
+			tl := translation.GetDefaultTranslation()
+			textTemplate.Execute(rw, textTemplateStruct{helper.SanitiseString(fmt.Sprintf("<p>%s</p>", tl.SurveyReloadSuccessful)), tl, config.ServerPath})
+			return
+		}
+
 		rw.Write([]byte("200 Ok"))
 
 	default:

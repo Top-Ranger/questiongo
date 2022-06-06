@@ -23,6 +23,7 @@
   <div>
     <form action="{{.ServerPath}}/reload.html" target="_self" method="post">
         <p><label for="pw">{{.Translation.Password}}:</label> <br> <input id="pw" type="password" name="pw" maxlength="500" required></p>
+        <input type="hidden" name="website" value="true">
         <p><input type="submit" value="{{.Translation.ReloadSurveys}}"></p>
       </form>
   </div>

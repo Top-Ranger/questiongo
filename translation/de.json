@@ -34,5 +34,7 @@
     "WeekdayFriday": "Freitag",
     "WeekdaySaturday": "Samstag",
     "WeekdaySunday": "Sonntag",
-    "ReloadSurveys": "Umfragen neu laden"
+    "ReloadSurveys": "Umfragen neu laden",
+    "SurveyReloadSuccessful": "Neuladen der Umfragen war erfolgreich.",
+    "ReloadingDisabled": "Das Neuladen von Umfragen ist deaktiviert."
 }

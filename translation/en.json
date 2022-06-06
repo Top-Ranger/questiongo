@@ -34,5 +34,7 @@
     "WeekdayFriday": "Friday",
     "WeekdaySaturday": "Saturday",
     "WeekdaySunday": "Sunday",
-    "ReloadSurveys": "Reload surveys"
+    "ReloadSurveys": "Reload surveys",
+    "SurveyReloadSuccessful": "Survey reload was successful.",
+    "ReloadingDisabled": "Survey reloading is disabled."
 }
