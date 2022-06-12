@@ -216,8 +216,8 @@ func initialiseServer() error {
 	http.HandleFunc(strings.Join([]string{config.ServerPath, "/answer.html"}, ""), answerHandle)
 	http.HandleFunc(strings.Join([]string{config.ServerPath, "/results.html"}, ""), resultsHandle)
 	http.HandleFunc(strings.Join([]string{config.ServerPath, "/reload.html"}, ""), reloadHandle)
-	http.HandleFunc(strings.Join([]string{config.ServerPath, "/results.zip"}, ""), zipHandle)
-	http.HandleFunc(strings.Join([]string{config.ServerPath, "/results.csv"}, ""), csvHandle)
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/results.zip"}, ""), func(w http.ResponseWriter, r *http.Request) { resultDownloadHandle(w, r, "zip") })
+	http.HandleFunc(strings.Join([]string{config.ServerPath, "/results.csv"}, ""), func(w http.ResponseWriter, r *http.Request) { resultDownloadHandle(w, r, "csv") })
 	http.HandleFunc("/", questionnaireHandle)
 
 	return nil
@@ -384,7 +384,7 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 	resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translationStruct, config.ServerPath})
 }
 
-func zipHandle(rw http.ResponseWriter, r *http.Request) {
+func resultDownloadHandle(rw http.ResponseWriter, r *http.Request, filetype string) {
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
 	err := r.ParseForm()
@@ -395,65 +395,73 @@ func zipHandle(rw http.ResponseWriter, r *http.Request) {
 	}
 	key := r.Form.Get("key")
 	a := r.Form.Get("auth")
+	pw := r.Form.Get("pw")
 
-	if !auth.VerifyStringsTimed(a, key, time.Now(), 1*time.Hour) {
+	if key == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Access key not valid"))
 		return
+	}
+
+	if a == "" && pw == "" {
+		rw.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// We now know either a or pw are not empty
+	if a != "" {
+		if !auth.VerifyStringsTimed(a, key, time.Now(), 1*time.Hour) {
+			rw.WriteHeader(http.StatusUnauthorized)
+			rw.Write([]byte("Access key not valid"))
+			return
+		}
 	}
 
 	questionnairesLock.RLock()
 	q, ok := questionnaires[key]
 	questionnairesLock.RUnlock()
+
 	if !ok {
-		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation(), config.ServerPath})
+		rw.WriteHeader(http.StatusUnauthorized)
+		if config.LogFailedLogin {
+			log.Printf("Failed login from %s", helper.GetRealIP(r))
+		}
 		return
+	}
+
+	if pw != "" {
+		ok, err = registry.ComparePasswords(q.PasswordMethod, pw, q.Password)
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			rw.Write([]byte(err.Error()))
+			return
+		}
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			if config.LogFailedLogin {
+				log.Printf("Failed login from %s", helper.GetRealIP(r))
+			}
+			return
+		}
 	}
 
 	name := strings.ReplaceAll(key, "\"", "_")
 	name = strings.ReplaceAll(name, ";", "_")
-	rw.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", name))
 
-	err = q.WriteZip(rw)
-	if err != nil {
-		log.Printf("error sending zip: %s", err.Error())
-		return
-	}
-}
+	rw.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.%s\"", name, filetype))
 
-func csvHandle(rw http.ResponseWriter, r *http.Request) {
-	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-
-	err := r.ParseForm()
-	if err != nil {
+	switch filetype {
+	case "csv":
+		err = q.WriteCSV(rw)
+	case "zip":
+		err = q.WriteZip(rw)
+	default:
 		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write([]byte(err.Error()))
-		return
-	}
-	key := r.Form.Get("key")
-	a := r.Form.Get("auth")
-
-	if !auth.VerifyStringsTimed(a, key, time.Now(), 1*time.Hour) {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Access key not valid"))
+		rw.Write([]byte(fmt.Sprintf("Unknown filetype %s", filetype)))
 		return
 	}
 
-	questionnairesLock.RLock()
-	q, ok := questionnaires[key]
-	questionnairesLock.RUnlock()
-	if !ok {
-		resultsAccessTemplate.Execute(rw, resultsAccessTemplateStruct{translation.GetDefaultTranslation(), config.ServerPath})
-		return
-	}
-
-	name := strings.ReplaceAll(key, "\"", "_")
-	name = strings.ReplaceAll(name, ";", "_")
-	rw.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.csv\"", name))
-
-	err = q.WriteCSV(rw)
 	if err != nil {
-		log.Printf("error sending zip: %s", err.Error())
+		log.Printf("error sending %s: %s", filetype, err.Error())
 		return
 	}
 }
