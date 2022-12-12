@@ -131,12 +131,17 @@ func (q Questionnaire) GetEnd() []byte {
 // WriteQuestions writes a html page containing the actual questionnaire to the writer.
 // Since the questionnaite might contain random elements, it should be called seperately for each user instead of caching the result.
 func (q Questionnaire) WriteQuestions(w io.Writer) {
+	translationStruct, err := translation.GetTranslation(q.Language)
+	if err != nil {
+		w.Write([]byte(fmt.Sprintf("can not get translation for language '%s'", q.Language)))
+	}
+
 	t := questionnaireTemplateStruct{
 		Pages:        make([]questionnaireTemplatePageStruct, len(q.Pages)),
 		ID:           q.id,
 		ShowProgress: q.ShowProgress,
 		AllowBack:    q.AllowBack,
-		Translation:  translation.GetDefaultTranslation(),
+		Translation:  translationStruct,
 		ServerPath:   config.ServerPath,
 	}
 	for p := range q.Pages {
@@ -170,7 +175,7 @@ func (q Questionnaire) WriteQuestions(w io.Writer) {
 		}
 	}
 
-	err := questionnaireTemplate.ExecuteTemplate(w, "questionnaire.html", t)
+	err = questionnaireTemplate.ExecuteTemplate(w, "questionnaire.html", t)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -494,7 +499,7 @@ func LoadQuestionnaire(path, file, key string) (Questionnaire, error) {
 	if !ok {
 		return Questionnaire{}, fmt.Errorf("can not format end: Unknown type %s (%s)", q.StartFormat, file)
 	}
-	text := textTemplateStruct{f.Format(b), translation.GetDefaultTranslation(), config.ServerPath}
+	text := textTemplateStruct{f.Format(b), translationStruct, config.ServerPath}
 	output = bytes.NewBuffer(make([]byte, 0, len(text.Text)*2))
 	textTemplate.Execute(output, text)
 	q.endCache = output.Bytes()

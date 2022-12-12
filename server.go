@@ -366,6 +366,13 @@ func resultsHandle(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		translationStruct, err = translation.GetTranslation(q.Language)
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			rw.Write([]byte(fmt.Sprintf("can not get translation for language '%s'", q.Language)))
+			return
+		}
+
 		td := resultsTemplateStruct{
 			Results:     results,
 			Key:         key,
