@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2022 Marcus Soll
+// Copyright 2020,2022,2023 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,19 +69,20 @@ func FactoryRange(data []byte, id string, language string) (registry.Question, e
 	return &r, nil
 }
 
-var rangeTemplate = template.Must(template.New("rangeTemplate").Parse(`<label for="{{.QID}}">{{.Question}}</label><br>
-<input style="width: 100%" type="range" id="{{.QID}}" name="{{.QID}}" min="{{.Min}}" max="{{.Max}}" step="{{.Step}}" value="{{.Start}}" {{if .ShowValue}}oninput="document.getElementById('{{.QID}}_output').value = this.value;"{{end}}>
-{{if .ShowValue}}
-<div style="text-align: center;">
-<output id="{{.QID}}_output" style="display: inline" for="{{.QID}}">{{.Start}}</output>
-</div>
-{{end}}
+var rangeTemplate = template.Must(template.New("rangeTemplate").Parse(`<label for="{{.QID}}">{{.Question}}</label>
 {{if .ShowScale}}
-<div style="min-height: 2em">
+<div style="min-height: 2em; max-width: 700px;">
 <div style="float: left;">{{.ScaleStart}}</div>
 <div style="float: right;">{{.ScaleEnd}}</div>
 </div>
 {{end}}
+<input style="width: 100%; max-width: 700px; text-align: center;" type="range" id="{{.QID}}" name="{{.QID}}" min="{{.Min}}" max="{{.Max}}" step="{{.Step}}" value="{{.Start}}" {{if .ShowValue}}oninput="document.getElementById('{{.QID}}_output').value = this.value;"{{end}}>
+{{if .ShowValue}}
+<div style="text-align: center; max-width: 700px;">
+<output id="{{.QID}}_output" style="display: inline" for="{{.QID}}">{{.Start}}</output>
+</div>
+{{end}}
+<br>
 `))
 
 var rangeStatisticsTemplate = template.Must(template.New("rangeStatisticTemplate").Parse(`{{.Question}}<br>
