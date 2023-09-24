@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2023 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import (
 )
 
 var stacked100Template = template.Must(template.New("chartTemplate").Parse(`
-<div class="chart" style="width: {{.Width}}vw;">
+<div class="chart">
 	<canvas id="{{.ID}}"></canvas>
 </div>
 <script>
@@ -75,11 +75,10 @@ type stacked100TemplateStruct struct {
 	LabelValues  []string
 	NumberValues []int
 	Title        string
-	Width        int
 }
 
-// BarChart returns a save HTML fragment of the data as a 100% stacked bar chart.
-// v is interpreted as v[bar][value]. Missing labels wikk be filled with empty labels.
+// Stacked100Chart returns a save HTML fragment of the data as a 100% stacked bar chart.
+// v is interpreted as v[bar][value]. Missing labels will be filled with empty labels.
 // User must embed chart.js and chartjs-plugin-stacked100.
 func Stacked100Chart(v [][]int, id string, labelBars []string, LabelValues []string, title string) template.HTML {
 	for len(v) > len(labelBars) {
@@ -109,14 +108,8 @@ func Stacked100Chart(v [][]int, id string, labelBars []string, LabelValues []str
 		LabelValues:  LabelValues,
 		NumberValues: make([]int, max),
 		Title:        title,
-		Width:        len(labelBars) * 5,
 	}
-	if td.Width > 80 {
-		td.Width = 80
-	}
-	if td.Width < 15 {
-		td.Width = 15
-	}
+
 	output := bytes.NewBuffer(make([]byte, 0))
 	err := stacked100Template.Execute(output, td)
 	if err != nil {
