@@ -25,27 +25,32 @@
   </header>
 
   <script>Chart.register(ChartjsPluginStacked100.default);</script>
-  
-  <h1>{{.Key}}</h1>
 
-  {{range $i, $e := .Results }}
-  <div {{if even $i}}class="even" {{else}}class="odd"{{end}}>
-    {{$e}}
+  <div class="flex-container">
+    <h1 class="flex-item">{{.Key}}</h1>
+
+    {{range $i, $e := .Results }}
+    <div {{if even $i}}class="even flex-item" {{else}}class="odd flex-item"{{end}}>
+      {{$e}}
+    </div>
+    {{end}}
+
+    <hr class="flex-item">
+
+    <form action="{{.ServerPath}}/results.csv" target="_self" method="post" class="flex-item">
+      <input type="hidden" name="key" value={{.Key}}>
+      <input type="hidden" name="auth" value={{.Auth}}>
+      <input type="submit" value="Download CSV">
+    </form>
+    <form action="{{.ServerPath}}/results.zip" target="_self" method="post" class="flex-item">
+      <input type="hidden" name="key" value={{.Key}}>
+      <input type="hidden" name="auth" value={{.Auth}}>
+      <input type="submit" value="Download ZIP">
+    </form> 
+
+    <hr class="flex-item">
+
   </div>
-  {{end}}
-
-  <hr>
-  <form action="{{.ServerPath}}/results.csv" target="_self" method="post">
-    <input type="hidden" name="key" value={{.Key}}>
-    <input type="hidden" name="auth" value={{.Auth}}>
-    <input type="submit" value="Download CSV">
-  </form> <br>
-  <form action="{{.ServerPath}}/results.zip" target="_self" method="post">
-    <input type="hidden" name="key" value={{.Key}}>
-    <input type="hidden" name="auth" value={{.Auth}}>
-    <input type="submit" value="Download ZIP">
-  </form> 
-  <hr>
 
   <script>
     var abbrs = document.querySelectorAll('abbr[title]');

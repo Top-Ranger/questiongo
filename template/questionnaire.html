@@ -40,22 +40,24 @@
 
   <form id="questionnaire" action="{{.ServerPath}}/answer.html?id={{.ID}}" method="POST" autocomplete="off">
   {{range $i, $e := .Pages }}
-  <div id="{{$e.ID}}" {{if not $e.First}}hidden{{end}}>
+  <div id="{{$e.ID}}" {{if not $e.First}}style="display: none;"{{end}} class="flex-container">
     {{if $.ShowProgress}}
-    <p><progress value="{{$i}}" max="{{len $.Pages}}">{{$.Translation.QuestionnaireProgress}}</progress></p>
+    <div class="flex-item"><progress value="{{$i}}" max="{{len $.Pages}}">{{$.Translation.QuestionnaireProgress}}</progress></div>
     {{end}}
     {{range $I, $E := $e.QuestionData }}
-    <div {{if even $I}}class="even" {{else}}class="odd"{{end}}>
+    <div {{if even $I}}class="even flex-item" {{else}}class="odd flex-item"{{end}}>
       {{$E}}
     </div>
     {{end}}
-    {{if $e.Last}}
-    <p>{{if $.AllowBack}}{{if not $e.First}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); var prev = document.getElementById('{{$e.PrevID}}'); prev.removeAttribute('hidden'); e.hidden = true; window.scrollTo(0,0);">&#x21A9; {{$.Translation.PreviousPage}}</button>&nbsp;{{end}}{{end}}<input type="submit" id="submitButton" value="{{$.Translation.FinishQuestionnaire}}"></p>
-    {{else}}
-    <p>{{if $.AllowBack}}{{if not $e.First}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); var prev = document.getElementById('{{$e.PrevID}}'); prev.removeAttribute('hidden'); e.hidden = true; window.scrollTo(0,0);">&#x21A9; {{$.Translation.PreviousPage}}</button>&nbsp;{{end}}{{end}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); if(validateElements(e)){var next = document.getElementById('{{$e.NextID}}'); next.removeAttribute('hidden'); e.hidden = true; window.scrollTo(0,0);}else{return false;}">{{$.Translation.NextPage}} &#x21AA;</button></p>
-    {{end}}
+    <div style="text-align: center;">
+      {{if $e.Last}}
+      <p>{{if $.AllowBack}}{{if not $e.First}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); var prev = document.getElementById('{{$e.PrevID}}'); prev.style.display = null; e.style.display = 'none'; window.scrollTo(0,0);">&#x21A9; {{$.Translation.PreviousPage}}</button>&nbsp;{{end}}{{end}}<input type="submit" id="submitButton" value="{{$.Translation.FinishQuestionnaire}}"></p>
+      {{else}}
+      <p>{{if $.AllowBack}}{{if not $e.First}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); var prev = document.getElementById('{{$e.PrevID}}'); prev.style.display = null; e.style.display = 'none'; window.scrollTo(0,0);">&#x21A9; {{$.Translation.PreviousPage}}</button>&nbsp;{{end}}{{end}}<button type="button" onclick="var e = document.getElementById('{{$e.ID}}'); if(validateElements(e)){var next = document.getElementById('{{$e.NextID}}'); next.style.display = null; e.style.display = 'none'; window.scrollTo(0,0);}else{return false;}">{{$.Translation.NextPage}} &#x21AA;</button></p>
+      {{end}}
+    </div>
     {{if $.ShowProgress}}
-    <p><progress value="{{$i}}" max="{{len $.Pages}}">{{$.Translation.QuestionnaireProgress}}</progress></p>
+    <div class="flex-item"><progress value="{{$i}}" max="{{len $.Pages}}">{{$.Translation.QuestionnaireProgress}}</progress></div>
     {{end}}
   </div>
   {{end}}

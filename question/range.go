@@ -76,9 +76,9 @@ var rangeTemplate = template.Must(template.New("rangeTemplate").Parse(`<label fo
 <div style="float: right;">{{.ScaleEnd}}</div>
 </div>
 {{end}}
-<input style="width: 100%; max-width: 700px; text-align: center;" type="range" id="{{.QID}}" name="{{.QID}}" min="{{.Min}}" max="{{.Max}}" step="{{.Step}}" value="{{.Start}}" {{if .ShowValue}}oninput="document.getElementById('{{.QID}}_output').value = this.value;"{{end}}>
+<input style="width: 100%;" type="range" id="{{.QID}}" name="{{.QID}}" min="{{.Min}}" max="{{.Max}}" step="{{.Step}}" value="{{.Start}}" {{if .ShowValue}}oninput="document.getElementById('{{.QID}}_output').value = this.value;"{{end}}>
 {{if .ShowValue}}
-<div style="text-align: center; max-width: 700px;">
+<div style="text-align: center;">
 <output id="{{.QID}}_output" style="display: inline" for="{{.QID}}">{{.Start}}</output>
 </div>
 {{end}}

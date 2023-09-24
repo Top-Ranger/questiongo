@@ -20,24 +20,27 @@
     </div>
   </header>
 
-  <div>
-    {{.Text}}
-  </div>
+  <div class="flex-container">
+    <div class="even flex-item">
+      {{.Text}}
+    </div>
 
-  <br>
-  <hr>
+    <div class="odd flex-item">
+      <p style="font-size: large;"><strong>{{.Translation.ResponsiblePerson}}:</strong> {{.Contact}}</p>
+    </div>
 
-  <noscript><h1>{{.Translation.JavaScriptRequired}}</h1></noscript>
-  <div id="__start_link" hidden>
-    <br>
+    <hr class="flex-item">
+
+    <noscript><h1 class="flex-item">{{.Translation.JavaScriptRequired}}</h1></noscript>
+    <div id="__start_link" class="flex-item" hidden>
       <form action="{{.ServerPath}}/{{.Key}}" method="GET">
         <input type="hidden" name="main" value="1">
         <input style="font-size: x-large; white-space: normal;" type="submit"  value="{{.Translation.StartQuestionnaire}}">
       </form>
+    </div>
+    
+    <script>var e = document.getElementById('__start_link'); e.removeAttribute('hidden');</script>
   </div>
-  <p style="font-size: large;"><strong>{{.Translation.ResponsiblePerson}}:</strong> {{.Contact}}</p>
-  
-  <script>var e = document.getElementById('__start_link'); e.removeAttribute('hidden');</script>
 
   <footer>
     <div>

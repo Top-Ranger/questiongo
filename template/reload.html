@@ -20,8 +20,8 @@
     </div>
   </header>
 
-  <div>
-    <form action="{{.ServerPath}}/reload.html" target="_self" method="post">
+  <div class="flex-container">
+    <form action="{{.ServerPath}}/reload.html" target="_self" method="post" class="flex-item">
         <p><label for="pw">{{.Translation.Password}}:</label> <br> <input id="pw" type="password" name="pw" maxlength="500" required></p>
         <input type="hidden" name="website" value="true">
         <p><input type="submit" value="{{.Translation.ReloadSurveys}}"></p>
