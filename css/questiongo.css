@@ -129,6 +129,11 @@ progress {
     -webkit-user-select: none;
 }
 
+body {
+    margin: 8px;
+    padding: 0px;
+}
+
 .flex-container {
     display: flex;
     align-items: center;
@@ -141,6 +146,9 @@ progress {
     max-width: 700px;
     margin-top: 10px;
     margin-bottom: 10px;
+    margin-left: 8px;
+    margin-right: 8px;
     padding-left: 10px;
     padding-right: 10px;
+    box-sizing: border-box;
 }
