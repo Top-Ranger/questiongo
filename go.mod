@@ -9,7 +9,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/yuin/goldmark v1.7.8
-	golang.org/x/crypto v0.30.0
+	golang.org/x/crypto v0.31.0
 )
 
 require (
