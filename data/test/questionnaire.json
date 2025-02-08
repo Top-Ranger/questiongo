@@ -23,6 +23,12 @@
         {
             "RandomOrderQuestions": false,
             "Questions": [
+                ["bipolarmatrix", "bipolar matrix", "bipolarmatrix.json"]
+            ]
+        },
+        {
+            "RandomOrderQuestions": false,
+            "Questions": [
                 ["display", "display", "display.json"],
                 ["drg", "display random group", "drg.json"],
                 ["r", "range", "range.json"],
