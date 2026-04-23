@@ -126,6 +126,10 @@ func (m *sqlite) LoadConfig(data []byte) error {
 	m.db = db
 
 	if !exists {
+		_, err = db.Exec("PRAGMA journal_mode=WAL;")
+		if err != nil {
+			return fmt.Errorf("sqlite: can not set journal to WAL: %w", err)
+		}
 		tx, err := db.BeginTx(context.Background(), nil)
 		if err != nil {
 			return fmt.Errorf("sqlite: can not start commit to create db: %w", err)
