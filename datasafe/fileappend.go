@@ -91,6 +91,7 @@ func (fa *fileAppend) SaveData(questionnaireID string, questionID, data []string
 }
 
 func (fa *fileAppend) LoadConfig(data []byte) error {
+	log.Println("fileappend: This datasave does not provide any protection if a write is not completed and therefore the usage is disencurraged. Consider using SQLite or other datasafes.")
 	fa.start.Do(func() {
 		go fa.fileappendWorker()
 		log.Println("FileAppend: starting worker")
