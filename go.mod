@@ -14,5 +14,6 @@ require (
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
+	github.com/mattn/go-sqlite3 v1.14.42 // indirect
 	golang.org/x/net v0.52.0 // indirect
 )

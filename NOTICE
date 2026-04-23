@@ -16,8 +16,11 @@ To run it, simply use the following commands:
 go build
 ./questiongo
 
+To build the SQLite3 backend, you have to use the following build command:
+go build -tags="sqlite"
 To build the MySQL / MariaDB backend, you have to use the following build command:
 go build -tags="mysql"
+(Please note that the 'fileappend' datasafe is not safe against data corruption when not shut down properly)
 
 A sample configration can be found in the config folder.
 A sample questionnaire (containing all features) can be found at 'data/test'.
