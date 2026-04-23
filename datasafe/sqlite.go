@@ -212,7 +212,12 @@ func (m *sqlite) FlushAndClose() {
 		return
 	}
 
-	err := m.db.Close()
+	// Do final cleanup since we can assume noone operates anymore on the database
+	_, err := m.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);")
+	if err != nil {
+		log.Printf("sqlite: can not checkpoint: %s", err.Error())
+	}
+	err = m.db.Close()
 	if err != nil {
 		log.Printf("sqlite: error closing db: %s", err.Error())
 	}
